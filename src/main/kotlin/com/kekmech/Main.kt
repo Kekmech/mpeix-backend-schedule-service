@@ -7,6 +7,7 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.features.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
@@ -55,7 +56,7 @@ fun main(args: Array<String>) {
             post(Endpoint.getGroupId) {
                 val groupNumber = call.receive<GetGroupNumberRequest>().groupNumber
                 if (groupNumber == null) {
-                    call.respond(HttpStatusCode.Conflict)
+                    call.respond(HttpStatusCode.BadRequest)
                 } else {
                     val url = "https://mpei.ru/Education/timetable/Pages/default.aspx"
                     val groupId = client
