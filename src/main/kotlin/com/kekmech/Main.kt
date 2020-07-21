@@ -23,8 +23,10 @@ private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
 fun main(args: Array<String>) {
     val client = HttpClient(OkHttp) {
         engine {
-            addInterceptor(HttpLoggingInterceptor())
-            addInterceptor(HeadersInterceptor())
+            addInterceptor(RequiredHeadersInterceptor())
+            addInterceptor(HttpLoggingInterceptor(Logger).apply {
+                setLevel(HttpLoggingInterceptor.Level.BODY)
+            })
         }
         expectSuccess = false
         followRedirects = false
@@ -40,9 +42,8 @@ fun main(args: Array<String>) {
         routing {
             post(Endpoint.getGroupId) {
                 call.receive<GetGroupNumberRequest>().groupNumber?.let { groupNumber ->
-                    val url = "https://mpei.ru/Education/timetable/Pages/default.aspx"
                     val groupId = client
-                        .get<HttpResponse>(url) { parameter("group", groupNumber) }
+                        .get<HttpResponse>(Mpei.timetableMainPage) { parameter("group", groupNumber) }
                         .let { it.headers[HttpHeaders.Location].orEmpty() }
                         .let(::Url)
                         .let { it.parameters["groupoid"].orEmpty() }

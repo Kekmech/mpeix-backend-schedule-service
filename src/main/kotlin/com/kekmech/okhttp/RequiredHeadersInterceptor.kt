@@ -3,7 +3,7 @@ package com.kekmech.okhttp
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class HeadersInterceptor : Interceptor {
+class RequiredHeadersInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response =
         chain.request().newBuilder()
