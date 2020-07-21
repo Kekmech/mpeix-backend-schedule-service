@@ -1,48 +1,36 @@
 package com.kekmech
 
-import com.kekmech.dto.GetGroupNumberRequest
-import com.kekmech.dto.GetGroupNumberResponse
-import com.kekmech.okhttp.HeadersInterceptor
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.client.HttpClient
+import com.kekmech.dto.*
+import com.kekmech.okhttp.*
+import io.ktor.application.*
+import io.ktor.client.*
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.features.HttpTimeout
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.client.statement.HttpResponse
-import io.ktor.features.CallLogging
-import io.ktor.features.Compression
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.DefaultHeaders
-import io.ktor.gson.gson
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.post
-import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import java.text.DateFormat
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.features.*
+import io.ktor.gson.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import okhttp3.logging.*
+import java.text.*
 
 private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
 
 fun main(args: Array<String>) {
-    val preconfiguredClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor())
-        .addInterceptor(HeadersInterceptor())
-        .followSslRedirects(false)
-        .followRedirects(false)
-        .build()
-
     val client = HttpClient(OkHttp) {
-        engine { preconfigured = preconfiguredClient }
+        engine {
+            config {
+                followRedirects(false)
+                followSslRedirects(false)
+            }
+            addInterceptor(HttpLoggingInterceptor())
+            addInterceptor(HeadersInterceptor())
+        }
         expectSuccess = false
-        followRedirects = false
     }
 
     val server = embeddedServer(Netty, port = 80, host = "127.0.0.1") {
