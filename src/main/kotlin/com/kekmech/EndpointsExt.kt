@@ -2,6 +2,7 @@ package com.kekmech
 
 object Endpoint {
     const val getGroupId = "/getGroupId"
+    const val getScheduleByGroup = "/getScheduleByGroup"
 }
 
 object Mpei {

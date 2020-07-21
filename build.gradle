@@ -1,10 +1,10 @@
-group 'Mpeix Backend'
-version '1.0'
+group "Mpeix Backend"
+version "1.0"
 
 
-apply plugin: 'java'
-apply plugin: 'kotlin'
-apply plugin: 'application'
+apply plugin: "java"
+apply plugin: "kotlin"
+apply plugin: "application"
 apply plugin: "com.google.cloud.tools.jib"
 
 
@@ -14,16 +14,16 @@ compileTestKotlin { kotlinOptions.jvmTarget = "1.8" }
 
 
 sourceSets {
-    main.kotlin.srcDirs = [ 'src/main/kotlin' ]
-    main.resources.srcDirs = [ 'src/main/resources' ]
+    main.kotlin.srcDirs = [ "src/main/kotlin" ]
+    main.resources.srcDirs = [ "src/main/resources" ]
 }
 
 
 buildscript {
     ext {
-        kotlin_version = '1.3.72'
-        ktor_version = '1.3.2'
-        jooq_version = '3.13.2'
+        kotlin_version = "1.3.72"
+        ktor_version = "1.3.2"
+        jooq_version = "3.13.2"
 
         ktor = [
                 server_core:    "io.ktor:ktor-server-core:$ktor_version",
@@ -66,14 +66,14 @@ buildscript {
 
 jib {
     to {
-        image = 'tonykolomeytsev/mpeix-backend-schedule-service:latest'
+        image = "tonykolomeytsev/mpeix-backend-schedule-service:latest"
         auth {
             username = mpeix_backend_user
             password = mpeix_backend_pass
         }
         container {
-            mainClass = 'com.kekmech.MainKt'
-            ports = ['8080', '2000-2003/udp', '80']
+            mainClass = "com.kekmech.MainKt"
+            ports = ["8080", "2000-2003/udp", "80"]
         }
     }
 }
@@ -87,6 +87,7 @@ repositories {
 
 
 dependencies {
+    implementation fileTree("lib") { include "*.jar" }
     implementation kotlin.stdlib
 
     implementation ktor.server_core
