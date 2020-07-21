@@ -23,14 +23,11 @@ private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
 fun main(args: Array<String>) {
     val client = HttpClient(OkHttp) {
         engine {
-            config {
-                followRedirects(false)
-                followSslRedirects(false)
-            }
             addInterceptor(HttpLoggingInterceptor())
             addInterceptor(HeadersInterceptor())
         }
         expectSuccess = false
+        followRedirects = false
     }
 
     val server = embeddedServer(Netty, port = 80, host = "127.0.0.1") {
