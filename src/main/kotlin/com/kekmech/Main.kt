@@ -54,10 +54,7 @@ fun main(args: Array<String>) {
         }
         routing {
             post(Endpoint.getGroupId) {
-                val groupNumber = call.receive<GetGroupNumberRequest>().groupNumber
-                if (groupNumber == null) {
-                    call.respond(HttpStatusCode.BadRequest)
-                } else {
+                call.receive<GetGroupNumberRequest>().groupNumber?.let { groupNumber ->
                     val url = "https://mpei.ru/Education/timetable/Pages/default.aspx"
                     val groupId = client
                         .get<HttpResponse>(url) { parameter("group", groupNumber) }
@@ -65,7 +62,7 @@ fun main(args: Array<String>) {
                         .let(::Url)
                         .let { it.parameters["groupoid"].orEmpty() }
                     call.respond(HttpStatusCode.OK, GetGroupNumberResponse(groupId))
-                }
+                } ?: call.respond(HttpStatusCode.BadRequest)
             }
         }
     }
