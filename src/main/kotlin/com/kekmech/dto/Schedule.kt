@@ -3,7 +3,9 @@ package com.kekmech.dto
 import java.time.*
 
 data class Schedule(
-
+    val groupNumber: String = "",
+    val groupId: String = "",
+    val weeks: List<Week> = emptyList()
 )
 
 data class Week(
