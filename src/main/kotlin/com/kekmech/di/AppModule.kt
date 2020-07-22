@@ -1,0 +1,26 @@
+package com.kekmech.di
+
+import com.kekmech.helpers.*
+import com.kekmech.okhttp.*
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.netty.util.internal.logging.*
+import okhttp3.logging.*
+import org.koin.dsl.*
+
+object AppModule : ModuleProvider({
+    single {
+        HttpClient(OkHttp) {
+            engine {
+                addInterceptor(RequiredHeadersInterceptor())
+                addInterceptor(HttpLoggingInterceptor(Logger).apply {
+                    setLevel(HttpLoggingInterceptor.Level.BODY)
+                })
+            }
+            expectSuccess = false
+            followRedirects = false
+        }
+    } bind HttpClient::class
+
+    single { Slf4JLoggerFactory.getInstance("*") } bind InternalLogger::class
+})

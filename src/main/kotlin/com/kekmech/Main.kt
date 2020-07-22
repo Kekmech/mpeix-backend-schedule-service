@@ -1,10 +1,12 @@
 package com.kekmech
 
+import com.kekmech.di.*
 import com.kekmech.dto.*
-import com.kekmech.okhttp.*
+import com.kekmech.gson.*
+import com.kekmech.helpers.*
 import io.ktor.application.*
 import io.ktor.client.*
-import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.features.*
@@ -15,74 +17,77 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import okhttp3.logging.*
-import org.intellij.lang.annotations.*
+import io.netty.util.internal.logging.*
 import org.jooq.*
-import org.jooq.impl.*
-import java.sql.*
+import org.koin.core.context.*
+import org.koin.java.KoinJavaComponent.inject
 import java.text.*
+import java.time.*
 
 private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
 
-fun main(args: Array<String>) {
-    val context = initPostgreSql()
+val dsl by inject(DSLContext::class.java)
+val client by inject(HttpClient::class.java)
+val log by inject(InternalLogger::class.java)
 
-    val client = HttpClient(OkHttp) {
-        engine {
-            addInterceptor(RequiredHeadersInterceptor())
-            addInterceptor(HttpLoggingInterceptor(Logger).apply {
-                setLevel(HttpLoggingInterceptor.Level.BODY)
-            })
-        }
-        expectSuccess = false
-        followRedirects = false
-    }
+fun main(args: Array<String>) {
+    initKoin()
 
     val server = embeddedServer(Netty, port = 80, host = "127.0.0.1") {
         install(DefaultHeaders)
         install(Compression)
         install(CallLogging)
         install(ContentNegotiation) {
-            gson { setDateFormat(DateFormat.LONG) }
+            gson {
+                setDateFormat(DateFormat.LONG)
+                registerTypeAdapter(LocalDate::class.java, LocalDateSerializer())
+            }
+        }
+        install(StatusPages) {
+            exception<InvalidArgumentException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            }
+            exception<MpeiBackendUnexpectedBehaviorException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            }
         }
         routing {
-            post(Endpoint.getGroupId) {
-                call.receive<GetGroupIdRequest>().groupNumber?.let { groupNumber ->
-                    @Language("SQL")
-                    val findInCache =
-                        "select mpei_schedule_id from groups_info where (group_number='$groupNumber') limit 1;"
-                    val cache = context.fetch(findInCache).firstOrNull()?.getValue("mpei_schedule_id")?.toString()
-                    if (cache != null) {
-                        println("Get mpei_schedule_id from cache")
-                        call.respond(HttpStatusCode.OK, GetGroupIdResponse(cache))
-                    } else {
-                        println("Get mpei_schedule_id from mpei.ru")
-                        val groupId = client
-                            .get<HttpResponse>(Mpei.timetableMainPage) { parameter("group", groupNumber) }
-                            .let { it.headers[HttpHeaders.Location].orEmpty() }
-                            .let(::Url)
-                            .let { it.parameters["groupoid"].orEmpty() }
-
-                        @Language("SQL")
-                        val insertNewGroupNumber =
-                            "insert into groups_info (group_number, mpei_schedule_id) values ('$groupNumber', $groupId);"
-                        context.fetch(insertNewGroupNumber)
-                        call.respond(HttpStatusCode.OK, GetGroupIdResponse(groupId))
-                    }
-                } ?: call.respond(HttpStatusCode.BadRequest)
-            }
-
-            post(Endpoint.getScheduleByGroup) {
-                val groupNumber = call.receive<GetScheduleByGroupRequest>().groupNumber
-                context.fetch(SqlRequests.getGroupIdByGroupNumber(groupNumber))
-            }
+            provideGetGroupId()
+            provideGetScheduleByGroupName()
         }
     }
     server.start(wait = true)
 }
 
-fun initPostgreSql(): DSLContext {
-    val driverClass = Class.forName("org.postgresql.Driver")
-    val connection: Connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mpeix", "postgres", "")
-    return DSL.using(connection, SQLDialect.POSTGRES)
+fun initKoin() = startKoin {
+    modules(
+        AppModule,
+        PostgresModule
+    )
+}
+
+fun Routing.provideGetGroupId() = post(Endpoint.getGroupId) {
+    val groupNumber= call.receive<GetGroupIdRequest>().groupNumber.checkIsValidGroupNumber()
+    dsl.getMpeiScheduleIdByGroupNumber(groupNumber)?.let {
+        call.respond(HttpStatusCode.OK, GetGroupIdResponse(it))
+        log.debug("Get MpeiScheduleId from cache")
+    } ?: run {
+        val mpeiScheduleId = client
+            .get<HttpResponse>(Mpei.Timetable.mainPage) { parameter("group", groupNumber) }
+            .checkGroupFound()
+            .let { Url(it.headers[HttpHeaders.Location].orEmpty()) }
+            .let { it.parameters["groupoid"].orEmpty() }
+            .assertUnexpectedBehavior { it.isNotEmpty() }
+
+        dsl.insertNewGroupInfo(groupNumber, mpeiScheduleId)
+        call.respond(HttpStatusCode.OK, GetGroupIdResponse(mpeiScheduleId))
+        log.debug("Get MpeiScheduleId from MPEI backend")
+    }
+}
+
+fun Routing.provideGetScheduleByGroupName() = post(Endpoint.getScheduleByGroup) {
+    val context by inject(DSLContext::class.java)
+    val client by inject(HttpClient::class.java)
+
+    val groupNumber = call.receive<GetScheduleByGroupRequest>().groupNumber.checkIsValidGroupNumber()
 }
