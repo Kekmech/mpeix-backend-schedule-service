@@ -7,6 +7,7 @@ import io.ktor.client.engine.okhttp.*
 import io.netty.util.internal.logging.*
 import okhttp3.logging.*
 import org.koin.dsl.*
+import java.util.*
 
 object AppModule : ModuleProvider({
     single {
@@ -23,4 +24,6 @@ object AppModule : ModuleProvider({
     } bind HttpClient::class
 
     single { Slf4JLoggerFactory.getInstance("*") } bind InternalLogger::class
+
+    single { Locale.forLanguageTag("ru_RU") } bind Locale::class
 })

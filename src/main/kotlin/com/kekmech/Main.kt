@@ -89,5 +89,29 @@ fun Routing.provideGetScheduleByGroupName() = post(Endpoint.getScheduleByGroup) 
     val context by inject(DSLContext::class.java)
     val client by inject(HttpClient::class.java)
 
-    val groupNumber = call.receive<GetScheduleByGroupRequest>().groupNumber.checkIsValidGroupNumber()
+    val request = call.receive<GetScheduleByGroupRequest>()
+    val groupNumber = request.groupNumber.checkIsValidGroupNumber()
+    val requestedWeekStart = request.weekOffset
+
+    val mpeiScheduleId: String = dsl.getMpeiScheduleIdByGroupNumber(groupNumber)?.also {
+        log.debug("Get MpeiScheduleId from cache")
+    } ?: run {
+        val mpeiScheduleId = client
+            .get<HttpResponse>(Mpei.Timetable.mainPage) { parameter("group", groupNumber) }
+            .checkGroupFound()
+            .let { Url(it.headers[HttpHeaders.Location].orEmpty()) }
+            .let { it.parameters["groupoid"].orEmpty() }
+            .assertUnexpectedBehavior { it.isNotEmpty() }
+
+        dsl.insertNewGroupInfo(groupNumber, mpeiScheduleId)
+        log.debug("Get MpeiScheduleId from MPEI backend")
+        mpeiScheduleId
+    }
+
+    val schedule = client.get<String>(Mpei.Timetable.scheduleViewPage) {
+        parameter("mode", "list")
+        parameter("groupoid", mpeiScheduleId)
+        parameter("start", requestedWeekStart)
+    }
+
 }

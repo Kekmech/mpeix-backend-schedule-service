@@ -53,6 +53,9 @@ buildscript {
         koin = [
                 koin:           "org.koin:koin-core:$koin_version"
         ]
+        jsoup = [
+                jsoup:          "org.jsoup:jsoup:1.13.1"
+        ]
     }
 
     repositories {
@@ -105,6 +108,8 @@ dependencies {
     implementation ktor.client_logging
 
     implementation koin.koin
+
+    implementation jsoup.jsoup
 
     implementation jooq.jooq
     implementation jooq.meta
