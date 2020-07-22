@@ -10,7 +10,7 @@ object PostgresModule : ModuleProvider({
 
     fun initPostgreSql(): DSLContext {
         val driverClass = Class.forName("org.postgresql.Driver")
-        val connection: Connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mpeix", "postgres", "tensorflow_sucks")
+        val connection: Connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mpeix", "postgres", "")
         return DSL.using(connection, SQLDialect.POSTGRES)
     }
 

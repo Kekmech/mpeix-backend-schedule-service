@@ -3,7 +3,7 @@ package com.kekmech.dto
 import java.time.*
 
 data class Schedule(
-    
+
 )
 
 data class Week(
