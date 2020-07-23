@@ -7,7 +7,9 @@ import org.jsoup.*
 import org.jsoup.nodes.*
 import java.time.*
 
-class ScheduleParser {
+class ScheduleParser(
+    private val localDate: LocalDate = LocalDate.now()
+) {
 
     fun parse(html: String): Week {
         val rowsWithSchedule = Jsoup.parse(html)
@@ -51,11 +53,11 @@ class ScheduleParser {
                     val dayOfMonth = getDayOfMonthByName(dayInfo)
                     day = Day(
                         dayOfWeek = dayOfWeek.value,
-                        date = LocalDate.now().withMonth(monthOfYear.value).withDayOfMonth(dayOfMonth)
+                        date = localDate.withMonth(monthOfYear.value).withDayOfMonth(dayOfMonth)
                     )
                 }
                 row.isWeekGrid() -> if (day != null) days += day!! // will never happen
-                else -> Unit // throw IllegalArgumentException("SCHEDULE_PARSE_ERROR: $row")
+                else -> println("SCHEDULE_PARSE_ERROR: $row")
             }
         }
         day?.copy(classes = classes)?.let(days::add)
@@ -64,7 +66,7 @@ class ScheduleParser {
             days = days,
             firstDayOfWeek = firstDayOfWeek,
             weekOfYear = firstDayOfWeek.weekOfYear(),
-            weekOFSemester = firstDayOfWeek.weekOfSemester()
+            weekOfSemester = firstDayOfWeek.weekOfSemester()
         )
     }
 

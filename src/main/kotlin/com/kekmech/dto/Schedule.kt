@@ -10,7 +10,7 @@ data class Schedule(
 
 data class Week(
     val weekOfYear: Int = 0,
-    val weekOFSemester: Int = 0,
+    val weekOfSemester: Int = 0,
     val firstDayOfWeek: LocalDate = LocalDate.now(),
     val days: List<Day> = emptyList()
 )

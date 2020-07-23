@@ -7,8 +7,8 @@ import java.util.*
 
 private val locale by inject(Locale::class.java)
 
-fun LocalDate.atStartOfWeek(): LocalDate = LocalDate.now().apply {
-    minusDays(dayOfWeek.value.toLong())
+fun LocalDate.atStartOfWeek(): LocalDate = let {
+    if (dayOfWeek == DayOfWeek.MONDAY) it else minusDays(dayOfWeek.value - 1L)
 }
 
 fun LocalDate.weekOfYear(): Int = get(WeekFields.of(locale).weekOfWeekBasedYear())
