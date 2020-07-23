@@ -103,7 +103,6 @@ dependencies {
     implementation ktor.server_gson
     implementation ktor.client_gson
     implementation ktor.logging
-    implementation ktor.apache_engine
     implementation ktor.okhttp_engine
     implementation ktor.client_logging
 

@@ -8,7 +8,7 @@ import org.jsoup.nodes.*
 import java.time.*
 
 class ScheduleParser(
-    private val localDate: LocalDate = LocalDate.now()
+    private val localDate: LocalDate = LocalDate.now() // only for the year
 ) {
 
     fun parse(html: String): Week {
@@ -61,7 +61,10 @@ class ScheduleParser(
             }
         }
         day?.copy(classes = classes)?.let(days::add)
-        val firstDayOfWeek = days.first().date.atStartOfWeek()
+        val firstDayOfWeek = days
+            .takeIf { it.isNotEmpty() }
+            ?.first()?.date?.atStartOfWeek()
+            ?: localDate.atStartOfWeek()
         return Week(
             days = days,
             firstDayOfWeek = firstDayOfWeek,

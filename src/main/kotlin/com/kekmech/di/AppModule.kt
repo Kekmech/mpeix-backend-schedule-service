@@ -13,9 +13,10 @@ object AppModule : ModuleProvider({
     single {
         HttpClient(OkHttp) {
             engine {
+                addInterceptor(UnzippingInterceptor())
                 addInterceptor(RequiredHeadersInterceptor())
                 addInterceptor(HttpLoggingInterceptor(Logger).apply {
-                    setLevel(HttpLoggingInterceptor.Level.BODY)
+                    setLevel(HttpLoggingInterceptor.Level.HEADERS)
                 })
             }
             expectSuccess = false

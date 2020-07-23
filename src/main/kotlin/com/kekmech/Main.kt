@@ -19,14 +19,21 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.utils.io.charsets.*
+import io.ktor.utils.io.jvm.javaio.*
 import io.netty.util.internal.logging.*
 import org.jooq.*
 import org.koin.core.context.*
 import org.koin.java.KoinJavaComponent.inject
 import java.io.*
+import java.nio.*
+import java.nio.charset.*
+import java.nio.charset.Charset
 import java.text.*
 import java.time.*
+import java.time.format.*
 import kotlin.system.*
+import kotlin.text.Charsets
 
 private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
 
@@ -36,21 +43,6 @@ val log by inject(InternalLogger::class.java)
 
 fun main(args: Array<String>) {
     initKoin()
-    val scheduleHtml = File("C:\\Users\\tonyk\\Documents\\барс с оценками 2\\Просмотр расписания.html")
-        .readText()
-    val scheduleParser = ScheduleParser()
-    scheduleParser.parse(scheduleHtml).apply {
-        val gson = GsonBuilder()
-            .registerTypeAdapter(LocalDate::class.java, LocalDateSerializer())
-            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
-            .registerTypeAdapter(LocalTime::class.java, LocalTimeSerializer())
-            .create()
-        println(gson.toJson(this))
-    }
-
-    exitProcess(0)
-
-
     val server = embeddedServer(Netty, port = 80, host = "127.0.0.1") {
         install(DefaultHeaders)
         install(Compression)
@@ -59,16 +51,18 @@ fun main(args: Array<String>) {
             gson {
                 setDateFormat(DateFormat.LONG)
                 registerTypeAdapter(LocalDate::class.java, LocalDateSerializer())
+                registerTypeAdapter(LocalTime::class.java, LocalTimeSerializer())
+                registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
             }
         }
-        install(StatusPages) {
-            exception<InvalidArgumentException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
-            }
-            exception<MpeiBackendUnexpectedBehaviorException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
-            }
-        }
+//        install(StatusPages) {
+//            exception<InvalidArgumentException> { cause ->
+//                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+//            }
+//            exception<MpeiBackendUnexpectedBehaviorException> { cause ->
+//                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+//            }
+//        }
         routing {
             provideGetGroupId()
             provideGetScheduleByGroupName()
@@ -104,12 +98,16 @@ fun Routing.provideGetGroupId() = post(Endpoint.getGroupId) {
 }
 
 fun Routing.provideGetScheduleByGroupName() = post(Endpoint.getScheduleByGroup) {
-    val context by inject(DSLContext::class.java)
-    val client by inject(HttpClient::class.java)
-
+    val mpeiQueryTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     val request = call.receive<GetScheduleByGroupRequest>()
     val groupNumber = request.groupNumber.checkIsValidGroupNumber()
-    val requestedWeekStart = request.weekOffset
+    val requestedWeekStart = request.weekOffset.let {
+        if (it == 0) {
+            LocalDate.now().atStartOfWeek().format(mpeiQueryTimeFormatter)
+        } else {
+            LocalDate.now().plusWeeks(it.toLong()).atStartOfWeek().format(mpeiQueryTimeFormatter)
+        }
+    }
 
     val mpeiScheduleId: String = dsl.getMpeiScheduleIdByGroupNumber(groupNumber)?.also {
         log.debug("Get MpeiScheduleId from cache")
@@ -126,10 +124,14 @@ fun Routing.provideGetScheduleByGroupName() = post(Endpoint.getScheduleByGroup) 
         mpeiScheduleId
     }
 
-    val schedule = client.get<String>(Mpei.Timetable.scheduleViewPage) {
+    val schedule = client.get<HttpResponse>(Mpei.Timetable.scheduleViewPage) {
         parameter("mode", "list")
         parameter("groupoid", mpeiScheduleId)
         parameter("start", requestedWeekStart)
+    }.let {
+        val html = it.readText(Charset.forName("utf-8"))
+        print(html)
+        ScheduleParser().parse(html)
     }
-
+    call.respond(HttpStatusCode.OK, schedule)
 }
