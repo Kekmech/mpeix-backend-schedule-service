@@ -21,8 +21,8 @@ fun HttpResponse.checkCode(statusCode: HttpStatusCode): HttpResponse {
     return this
 }
 
-fun<T : Any> T.assertUnexpectedBehavior(predicate: (T) -> Boolean): T {
+fun<T : Any> T.assertUnexpectedBehavior(errorMessage: String = "ERROR_PARSE_GROUP_ID", predicate: (T) -> Boolean): T {
     if (!predicate(this))
-        throw MpeiBackendUnexpectedBehaviorException("ERROR_PARSE_GROUP_ID")
+        throw MpeiBackendUnexpectedBehaviorException(errorMessage)
     return this
 }

@@ -32,8 +32,8 @@ data class Classes(
 )
 
 data class Time(
-    val start: LocalDateTime = LocalDateTime.now(),
-    val end: LocalDateTime = LocalDateTime.now()
+    val start: LocalTime = LocalTime.now(),
+    val end: LocalTime = LocalTime.now()
 )
 
 enum class ClassesType { UNDEFINED, LECTURE, PRACTICE, LAB, COURSE }

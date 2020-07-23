@@ -1,9 +1,11 @@
 package com.kekmech
 
+import com.google.gson.*
 import com.kekmech.di.*
 import com.kekmech.dto.*
 import com.kekmech.gson.*
 import com.kekmech.helpers.*
+import com.kekmech.parser.*
 import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.features.json.*
@@ -21,8 +23,10 @@ import io.netty.util.internal.logging.*
 import org.jooq.*
 import org.koin.core.context.*
 import org.koin.java.KoinJavaComponent.inject
+import java.io.*
 import java.text.*
 import java.time.*
+import kotlin.system.*
 
 private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
 
@@ -32,6 +36,20 @@ val log by inject(InternalLogger::class.java)
 
 fun main(args: Array<String>) {
     initKoin()
+    val scheduleHtml = File("C:\\Users\\tonyk\\Documents\\барс с оценками 2\\Просмотр расписания.html")
+        .readText()
+    val scheduleParser = ScheduleParser()
+    scheduleParser.parse(scheduleHtml).apply {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(LocalDate::class.java, LocalDateSerializer())
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
+            .registerTypeAdapter(LocalTime::class.java, LocalTimeSerializer())
+            .create()
+        println(gson.toJson(this))
+    }
+
+    exitProcess(0)
+
 
     val server = embeddedServer(Netty, port = 80, host = "127.0.0.1") {
         install(DefaultHeaders)

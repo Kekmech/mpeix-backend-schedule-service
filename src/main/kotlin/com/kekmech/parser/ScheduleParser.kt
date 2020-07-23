@@ -6,14 +6,13 @@ import org.intellij.lang.annotations.*
 import org.jsoup.*
 import org.jsoup.nodes.*
 import java.time.*
-import java.time.format.*
 
 class ScheduleParser {
 
     fun parse(html: String): Week {
         val rowsWithSchedule = Jsoup.parse(html)
-            .select("table[class*=mpei-galaktika-lessons-grid-tbl] > tr")
-            .assertUnexpectedBehavior { !it.isNullOrEmpty() }
+            .select("table[class*=mpei-galaktika-lessons-grid-tbl] > tbody > tr")
+            .assertUnexpectedBehavior("SCHEDULE_PARSE_ERROR") { !it.isNullOrEmpty() }
         return parseRows(rowsWithSchedule.asIterable())
     }
 
@@ -55,10 +54,11 @@ class ScheduleParser {
                         date = LocalDate.now().withMonth(monthOfYear.value).withDayOfMonth(dayOfMonth)
                     )
                 }
-                row.isWeekGrid() && day != null -> days += day!! // will never happen
-                else -> throw IllegalArgumentException("SCHEDULE_PARSE_ERROR")
+                row.isWeekGrid() -> if (day != null) days += day!! // will never happen
+                else -> Unit // throw IllegalArgumentException("SCHEDULE_PARSE_ERROR: $row")
             }
         }
+        day?.copy(classes = classes)?.let(days::add)
         val firstDayOfWeek = days.first().date.atStartOfWeek()
         return Week(
             days = days,
@@ -93,21 +93,24 @@ class ScheduleParser {
         else -> ClassesType.UNDEFINED
     }
 
-    private fun getTimeFromText(text: String): Time = text.split("\\s*-\\s*".toRegex()).let { timeRange ->
+    private fun getTimeFromText(text: String): Time = text
+        .split("\\s*-\\s*".toRegex())
+        .map { if (it.matches("\\d:\\d{2}".toRegex())) "0$it" else it }
+        .let { timeRange ->
         Time(
-            start = LocalDateTime.parse(timeRange.first(), DateTimeFormatter.ISO_TIME),
-            end = LocalDateTime.parse(timeRange.last(), DateTimeFormatter.ISO_TIME)
+            start = LocalTime.parse(timeRange.first()),
+            end = LocalTime.parse(timeRange.last())
         )
     }
 
     private fun getNumberByTime(time: Time): Int = when {
-        time.start.isEqual(LocalDateTime.parse("9:20")) -> 1
-        time.start.isEqual(LocalDateTime.parse("11:10")) -> 2
-        time.start.isEqual(LocalDateTime.parse("13:45")) -> 3
-        time.start.isEqual(LocalDateTime.parse("15:35")) -> 4
-        time.start > LocalDateTime.parse("17:10") -> 5
-        time.start > LocalDateTime.parse("18:30") -> 6
-        time.start > LocalDateTime.parse("19:30") -> 7
+        time.start == LocalTime.parse("09:20") -> 1
+        time.start == LocalTime.parse("11:10") -> 2
+        time.start == LocalTime.parse("13:45") -> 3
+        time.start == LocalTime.parse("15:35") -> 4
+        time.start > LocalTime.parse("17:10") -> 5
+        time.start > LocalTime.parse("18:30") -> 6
+        time.start > LocalTime.parse("19:30") -> 7
         else -> -1
     }
 
@@ -136,10 +139,11 @@ class ScheduleParser {
         month.contains("МАР") -> Month.MARCH
         month.contains("АПР") -> Month.APRIL
         month.contains("МАЙ") -> Month.MAY
+        month.contains("МАЯ") -> Month.MAY
         month.contains("ИЮН") -> Month.JUNE
         month.contains("ИЮЛ") -> Month.JULY
         month.contains("АВГ") -> Month.AUGUST
-        else -> throw IllegalArgumentException("Something went wrong with month")
+        else -> throw IllegalArgumentException("Something went wrong with month: $month")
     }
 
     private fun getDayOfMonthByName(day: String): Int = day.replace("[^0-9]".toRegex(), "").toInt()
