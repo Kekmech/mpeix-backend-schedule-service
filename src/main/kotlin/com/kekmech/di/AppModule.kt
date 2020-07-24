@@ -28,3 +28,7 @@ object AppModule : ModuleProvider({
 
     single { Locale.forLanguageTag("ru_RU") } bind Locale::class
 })
+
+object Logger : HttpLoggingInterceptor.Logger {
+    override fun log(message: String) = println(message)
+}

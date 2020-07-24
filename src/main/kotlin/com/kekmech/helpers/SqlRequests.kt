@@ -1,6 +1,5 @@
 package com.kekmech.helpers
 
-import com.kekmech.*
 import org.intellij.lang.annotations.*
 import org.jooq.*
 
@@ -10,7 +9,7 @@ fun DSLContext.getGroupIdByGroupNumber(groupNumber: String) = fetch(
     "select group_id from groups_info where group_number='$groupNumber' limit 1"
 )
     .firstOrNull()
-    ?.getValue(DB.Tables.GroupsInfo.Columns.GROUP_ID)
+    ?.getValue("group_id")
     ?.toString()
 
 @Language("SQL")
@@ -18,7 +17,7 @@ fun DSLContext.getMpeiScheduleIdByGroupNumber(groupNumber: String) = fetch(
     "select mpei_schedule_id from groups_info where group_number='$groupNumber' limit 1"
 )
     .firstOrNull()
-    ?.getValue(DB.Tables.GroupsInfo.Columns.MPEI_SCHEDULE_ID)
+    ?.getValue("mpei_schedule_id")
     ?.toString()
 
 @Language("SQL")

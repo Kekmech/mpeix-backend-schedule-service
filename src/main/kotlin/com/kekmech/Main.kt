@@ -1,6 +1,6 @@
 package com.kekmech
 
-import com.google.gson.*
+import com.kekmech.Endpoint.Mpei
 import com.kekmech.di.*
 import com.kekmech.dto.*
 import com.kekmech.gson.*
@@ -8,7 +8,6 @@ import com.kekmech.helpers.*
 import com.kekmech.parser.*
 import io.ktor.application.*
 import io.ktor.client.*
-import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.features.*
@@ -19,23 +18,16 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.utils.io.charsets.*
-import io.ktor.utils.io.jvm.javaio.*
 import io.netty.util.internal.logging.*
 import org.jooq.*
 import org.koin.core.context.*
 import org.koin.java.KoinJavaComponent.inject
-import java.io.*
-import java.nio.*
 import java.nio.charset.*
-import java.nio.charset.Charset
 import java.text.*
 import java.time.*
 import java.time.format.*
-import kotlin.system.*
-import kotlin.text.Charsets
 
-private const val API_BASE_URL = "api.kekmech.com/mpeix/v1/schedule/"
+private const val API_BASE_URL = "api.kekmech.com/mpeix/schedule/"
 
 val dsl by inject(DSLContext::class.java)
 val client by inject(HttpClient::class.java)
@@ -43,7 +35,7 @@ val log by inject(InternalLogger::class.java)
 
 fun main(args: Array<String>) {
     initKoin()
-    val server = embeddedServer(Netty, port = 80, host = "127.0.0.1") {
+    val server = embeddedServer(Netty, port = 80) {
         install(DefaultHeaders)
         install(Compression)
         install(CallLogging)
@@ -55,17 +47,19 @@ fun main(args: Array<String>) {
                 registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
             }
         }
-//        install(StatusPages) {
-//            exception<InvalidArgumentException> { cause ->
-//                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
-//            }
-//            exception<MpeiBackendUnexpectedBehaviorException> { cause ->
-//                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
-//            }
-//        }
+        install(StatusPages) {
+            exception<InvalidArgumentException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            }
+            exception<MpeiBackendUnexpectedBehaviorException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            }
+        }
         routing {
-            provideGetGroupId()
-            provideGetScheduleByGroupName()
+            host(hosts = listOf("localhost", API_BASE_URL)) {
+                getGroupId()
+                getSchedule()
+            }
         }
     }
     server.start(wait = true)
@@ -78,7 +72,7 @@ fun initKoin() = startKoin {
     )
 }
 
-fun Routing.provideGetGroupId() = post(Endpoint.getGroupId) {
+fun Route.getGroupId() = post(Endpoint.getGroupId) {
     val groupNumber= call.receive<GetGroupIdRequest>().groupNumber.checkIsValidGroupNumber()
     dsl.getMpeiScheduleIdByGroupNumber(groupNumber)?.let {
         call.respond(HttpStatusCode.OK, GetGroupIdResponse(it))
@@ -97,15 +91,15 @@ fun Routing.provideGetGroupId() = post(Endpoint.getGroupId) {
     }
 }
 
-fun Routing.provideGetScheduleByGroupName() = post(Endpoint.getScheduleByGroup) {
+fun Route.getSchedule() = post(Endpoint.getSchedule) {
     val mpeiQueryTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     val request = call.receive<GetScheduleByGroupRequest>()
     val groupNumber = request.groupNumber.checkIsValidGroupNumber()
     val requestedWeekStart = request.weekOffset.let {
         if (it == 0) {
-            LocalDate.now().atStartOfWeek().format(mpeiQueryTimeFormatter)
+            LocalDate.now().atStartOfWeek()
         } else {
-            LocalDate.now().plusWeeks(it.toLong()).atStartOfWeek().format(mpeiQueryTimeFormatter)
+            LocalDate.now().plusWeeks(it.toLong()).atStartOfWeek()
         }
     }
 
@@ -127,11 +121,14 @@ fun Routing.provideGetScheduleByGroupName() = post(Endpoint.getScheduleByGroup) 
     val schedule = client.get<HttpResponse>(Mpei.Timetable.scheduleViewPage) {
         parameter("mode", "list")
         parameter("groupoid", mpeiScheduleId)
-        parameter("start", requestedWeekStart)
+        parameter("start", requestedWeekStart.format(mpeiQueryTimeFormatter))
     }.let {
         val html = it.readText(Charset.forName("utf-8"))
-        print(html)
-        ScheduleParser().parse(html)
+        Schedule(
+            groupNumber = groupNumber,
+            groupId = mpeiScheduleId,
+            weeks = listOf(ScheduleParser(requestedWeekStart).parseWeek(html))
+        )
     }
     call.respond(HttpStatusCode.OK, schedule)
 }

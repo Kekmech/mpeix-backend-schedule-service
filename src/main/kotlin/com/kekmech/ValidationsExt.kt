@@ -5,7 +5,7 @@ import io.ktor.http.*
 
 fun String?.checkIsValidGroupNumber(): String {
     if (!(this != null && matches("[а-яА-Я0-9-]{5,20}".toRegex())))
-        throw InvalidArgumentException("Text $this is not a group number")
+        throw InvalidArgumentException("INVALID_GROUP_NUMBER")
     return this.toUpperCase().replace("-0", "-")
 }
 

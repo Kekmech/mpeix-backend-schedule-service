@@ -7,11 +7,14 @@ import org.jsoup.*
 import org.jsoup.nodes.*
 import java.time.*
 
+/**
+ * @param localDate Guideline for the year number and a crutch for the correct date generation for an empty schedule
+ */
 class ScheduleParser(
-    private val localDate: LocalDate = LocalDate.now() // only for the year
+    private val localDate: LocalDate = LocalDate.now()
 ) {
 
-    fun parse(html: String): Week {
+    fun parseWeek(html: String): Week {
         val rowsWithSchedule = Jsoup.parse(html)
             .select("table[class*=mpei-galaktika-lessons-grid-tbl] > tbody > tr")
             .assertUnexpectedBehavior("SCHEDULE_PARSE_ERROR") { !it.isNullOrEmpty() }

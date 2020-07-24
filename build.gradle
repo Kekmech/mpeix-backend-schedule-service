@@ -36,7 +36,8 @@ buildscript {
                 logging:        "ch.qos.logback:logback-classic:1.2.3",
                 apache_engine:  "io.ktor:ktor-client-apache:$ktor_version",
                 okhttp_engine:  "io.ktor:ktor-client-okhttp:$ktor_version",
-                client_logging: "com.squareup.okhttp3:logging-interceptor:4.8.0"
+                client_logging: "com.squareup.okhttp3:logging-interceptor:4.8.0",
+                jwt_auth:       "io.ktor:ktor-auth-jwt:$ktor_version"
         ]
         kotlin = [
                 stdlib:         "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
