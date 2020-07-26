@@ -8,12 +8,12 @@ import java.sql.*
 
 object PostgresModule : ModuleProvider({
 
-    val postgresPassword by provideSecret("POSTGRES_PASSWORD")
+    val postgresPassword = "kek"
 
     fun initPostgreSql(): DSLContext {
         Class.forName("org.postgresql.Driver")
         val connection: Connection = DriverManager.getConnection(
-            "jdbc:postgresql://localhost:5432/mpeix",
+            "jdbc:postgresql://postgres:5432/mpeix",
             "postgres",
             postgresPassword
         )

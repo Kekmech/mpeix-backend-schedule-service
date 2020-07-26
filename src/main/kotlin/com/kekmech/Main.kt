@@ -27,15 +27,13 @@ import java.text.*
 import java.time.*
 import java.time.format.*
 
-private const val API_BASE_URL = "api.kekmech.com/mpeix/schedule/"
-
 val dsl by inject(DSLContext::class.java)
 val client by inject(HttpClient::class.java)
 val log by inject(InternalLogger::class.java)
 
 fun main(args: Array<String>) {
     initKoin()
-    val server = embeddedServer(Netty, port = 80) {
+    val server = embeddedServer(Netty, port = 8081) {
         install(DefaultHeaders)
         install(Compression)
         install(CallLogging)
@@ -56,9 +54,10 @@ fun main(args: Array<String>) {
             }
         }
         routing {
-            host(hosts = listOf("localhost", API_BASE_URL)) {
-                getGroupId()
-                getSchedule()
+            getGroupId()
+            getSchedule()
+            get("/") {
+                call.respond(HttpStatusCode.OK, "Hello world")
             }
         }
     }

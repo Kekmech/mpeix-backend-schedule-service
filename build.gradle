@@ -83,6 +83,7 @@ jib {
         container {
             mainClass = "com.kekmech.MainKt"
             ports = ["8080", "2000-2003/udp", "80"]
+            creationTime = "2020-07-25T10:00:00+03:00"
         }
     }
 }
@@ -106,6 +107,8 @@ dependencies {
     implementation ktor.logging
     implementation ktor.okhttp_engine
     implementation ktor.client_logging
+    implementation "io.ktor:ktor-network-tls:$ktor_version"
+    implementation "org.ehcache:ehcache:3.8.1"
 
     implementation koin.koin
 
