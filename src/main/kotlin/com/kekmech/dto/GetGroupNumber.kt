@@ -5,5 +5,6 @@ data class GetGroupIdRequest(
 )
 
 data class GetGroupIdResponse(
+    val groupNumber: String,
     val groupId: String
 )
