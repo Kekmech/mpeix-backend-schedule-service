@@ -4,6 +4,7 @@ import org.ehcache.*
 import org.ehcache.config.*
 import org.ehcache.config.builders.*
 import org.ehcache.expiry.*
+import java.io.*
 import java.time.Duration
 
 class CacheManagerConfigContext <K : Any, V : Any>(
@@ -58,9 +59,11 @@ inline fun<reified K : Any, reified V : Any> CacheManagerBuilder<CacheManager>.c
         V::class.java
     ).apply(config)
     return withCache(name, context.build())
-        .also {
-            if (!context.persistentCacheDir.isNullOrEmpty())
-                it.with(CacheManagerBuilder.persistence(context.persistentCacheDir))
+        .also { cacheManager ->
+            if (!context.persistentCacheDir.isNullOrEmpty()) {
+                File(context.persistentCacheDir!!).mkdirs()
+                cacheManager.with(CacheManagerBuilder.persistence(context.persistentCacheDir))
+            }
         }
 
 }

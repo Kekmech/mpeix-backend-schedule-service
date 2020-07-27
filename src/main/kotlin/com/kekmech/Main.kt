@@ -22,8 +22,9 @@ import java.time.*
 val scheduleRepository by inject(ScheduleRepository::class.java)
 
 fun main(args: Array<String>) {
-    initKoin()
-    val server = embeddedServer(Netty, port = 8081) {
+    val server = embeddedServer(Netty, port = GlobalConfig.port) {
+        initKoin(this)
+
         install(DefaultHeaders)
         install(Compression)
         install(CallLogging)
@@ -52,9 +53,9 @@ fun main(args: Array<String>) {
     server.start(wait = true)
 }
 
-fun initKoin() = startKoin {
+fun initKoin(application: Application) = startKoin {
     modules(
-        AppModule,
+        AppModule(application),
         PostgresModule
     )
 }
