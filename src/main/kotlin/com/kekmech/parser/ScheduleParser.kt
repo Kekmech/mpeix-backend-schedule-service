@@ -5,6 +5,7 @@ import com.kekmech.dto.*
 import org.intellij.lang.annotations.*
 import org.jsoup.*
 import org.jsoup.nodes.*
+import java.io.*
 import java.time.*
 
 /**
@@ -18,6 +19,7 @@ class ScheduleParser(
         val rowsWithSchedule = Jsoup.parse(html)
             .select("table[class*=mpei-galaktika-lessons-grid-tbl] > tbody > tr")
             .assertUnexpectedBehavior("SCHEDULE_PARSE_ERROR") { !it.isNullOrEmpty() }
+        File("sample.html").writeText(html)
         return parseRows(rowsWithSchedule.asIterable())
     }
 
@@ -66,11 +68,11 @@ class ScheduleParser(
         day?.copy(classes = classes)?.let(days::add)
         val firstDayOfWeek = days
             .takeIf { it.isNotEmpty() }
-            ?.first()?.date?.atStartOfWeek()
+            ?.first()?.date
             ?: localDate.atStartOfWeek()
         return Week(
             days = days,
-            firstDayOfWeek = firstDayOfWeek,
+            firstDayOfWeek = firstDayOfWeek.atStartOfWeek(),
             weekOfYear = firstDayOfWeek.weekOfYear(),
             weekOfSemester = firstDayOfWeek.weekOfSemester()
         )

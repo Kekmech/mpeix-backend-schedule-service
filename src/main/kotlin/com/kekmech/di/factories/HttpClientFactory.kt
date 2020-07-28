@@ -18,8 +18,8 @@ object HttpClientFactory {
             })
 
             config {
-                followSslRedirects(true)
-                followRedirects(true)
+                followSslRedirects(false)
+                followRedirects(false)
                 retryOnConnectionFailure(true)
                 cache(null)
                 connectTimeout(15, TimeUnit.SECONDS)
