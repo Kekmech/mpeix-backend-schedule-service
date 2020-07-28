@@ -55,12 +55,12 @@ class ScheduleRepository(
     suspend fun getSchedule(groupNumber: String, weekStart: LocalDate): Schedule =
         getScheduleFromCache(groupNumber, weekStart)
             ?: getScheduleFromRemote(groupNumber, weekStart)
-                .also { insertScheduleToCache(groupNumber, it) }
+                .also { insertScheduleToCache(groupNumber, weekStart, it) }
 
     private suspend fun getScheduleFromCache(groupNumber: String, weekStart: LocalDate): Schedule? =
-        scheduleCache.get(groupNumber)
+        scheduleCache.get("$groupNumber${weekStart.weekOfSemester()}")
             ?.takeIfNotExpired(weekStart)
-            ?.also { log.debug("getScheduleFromCache: $groupNumber:${weekStart.format(ISO_LOCAL_DATE)}") }
+            ?.also { log.debug("getScheduleFromCache: $groupNumber${weekStart.weekOfSemester()}") }
 
     private suspend fun getScheduleFromRemote(groupNumber: String, weekStart: LocalDate): Schedule {
         val mpeiQueryTimeFormatter = ofPattern("yyyy.MM.dd")
@@ -81,8 +81,9 @@ class ScheduleRepository(
 
     private suspend fun insertScheduleToCache(
         groupNumber: String,
+        weekStart: LocalDate,
         schedule: Schedule
-    ) = scheduleCache.put(groupNumber, schedule)
+    ) = scheduleCache.put("$groupNumber${weekStart.weekOfSemester()}", schedule)
 
     /**
      * Take schedule if it's first week is equal to weekStart

@@ -16,10 +16,10 @@ object EhCacheFactory {
         createCache<String, Schedule>(SCHEDULE_CACHE) {
             resourcePools {
                 disk(500, MemoryUnit.MB)
-                heap(120, EntryUnit.ENTRIES)
+                //heap(120, EntryUnit.ENTRIES)
             }
-            timeToLive { 7.days }
-            persistentCacheDir = "/ehcache/schedule/"
+            timeToLive { 2.days }
+            persistentCacheDir = "/etc/ehcache/schedule"
         }
 
     const val SCHEDULE_CACHE = "scheduleCache"

@@ -84,6 +84,7 @@ jib {
             mainClass = "com.kekmech.MainKt"
             ports = ["8080", "2000-2003/udp", "80"]
             creationTime = "2020-07-25T10:00:00+03:00"
+            volumes = ["/etc/ehcache/schedule"]
         }
     }
 }
@@ -97,6 +98,7 @@ repositories {
 
 
 dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter:5.6.2"
     implementation fileTree("lib") { include "*.jar" }
     implementation kotlin.stdlib
 
@@ -118,4 +120,11 @@ dependencies {
     implementation jooq.meta
     implementation jooq.codegen
     implementation jooq.h2_database
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }

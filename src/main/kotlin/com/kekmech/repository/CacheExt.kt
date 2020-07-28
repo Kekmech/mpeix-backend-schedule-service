@@ -17,7 +17,7 @@ class CacheManagerConfigContext <K : Any, V : Any>(
     var persistentCacheDir: String? = null
 
     fun resourcePools(config: ResourcePoolsBuilder.() -> Unit) {
-        resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
+        resourcePools = ResourcePoolsBuilder.heap(120)
             .apply(config)
             .build()
     }
