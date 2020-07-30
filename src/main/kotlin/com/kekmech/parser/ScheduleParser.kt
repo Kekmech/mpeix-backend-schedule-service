@@ -74,7 +74,7 @@ class ScheduleParser(
             days = days,
             firstDayOfWeek = firstDayOfWeek.atStartOfWeek(),
             weekOfYear = firstDayOfWeek.weekOfYear(),
-            weekOfSemester = firstDayOfWeek.weekOfSemester()
+            weekOfSemester = localDate.atSaturdayOfWeek().weekOfSemester()
         )
     }
 

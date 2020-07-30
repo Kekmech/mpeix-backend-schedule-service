@@ -1,5 +1,6 @@
 package com.kekmech.di
 
+import com.google.gson.*
 import com.kekmech.di.factories.*
 import com.kekmech.helpers.*
 import com.kekmech.repository.*
@@ -11,10 +12,11 @@ import org.koin.dsl.*
 import java.util.*
 
 class AppModule : ModuleProvider({
+    single { GsonFactory.create() } bind Gson::class
     single { HttpClientFactory.create() } bind HttpClient::class
     single { Slf4JLoggerFactory.getInstance("*") } bind InternalLogger::class
     single { Locale.forLanguageTag("ru_RU") } bind Locale::class
-    single { EhCacheFactory.create() } bind CacheManager::class
+    single { CacheFactory.create(get()) } bind CacheManager::class
 
     factory { ScheduleRepository(get(), get(), get(), get()) } bind ScheduleRepository::class
 })

@@ -11,6 +11,12 @@ fun LocalDate.atStartOfWeek(): LocalDate = let {
     if (dayOfWeek == DayOfWeek.MONDAY) it else minusDays(dayOfWeek.value - 1L)
 }
 
+fun LocalDate.atSaturdayOfWeek(): LocalDate = when (dayOfWeek) {
+    DayOfWeek.SATURDAY -> this
+    DayOfWeek.SUNDAY -> minusDays(1)
+    else -> plusDays(6L - dayOfWeek.value)
+}
+
 fun LocalDate.weekOfYear(): Int = get(WeekFields.of(locale).weekOfWeekBasedYear())
 
 /**
