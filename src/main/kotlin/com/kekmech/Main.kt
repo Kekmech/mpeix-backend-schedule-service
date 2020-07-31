@@ -42,6 +42,12 @@ fun main(args: Array<String>) {
             exception<MpeiBackendUnexpectedBehaviorException> { cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
             }
+            exception<KotlinNullPointerException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            }
+            exception<IllegalStateException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            }
         }
         routing {
             getGroupId()

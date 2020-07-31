@@ -58,9 +58,13 @@ class ScheduleRepository(
             ?: getScheduleFromRemote(groupNumber, weekStart)
                 .also { insertScheduleToCache(groupNumber, weekStart, it) }
 
-    private suspend fun getScheduleFromCache(groupNumber: String, weekStart: LocalDate): Schedule? =
-        scheduleCache.get(Key(groupNumber, weekStart.weekOfSemester()))
-            ?.takeIfNotExpired(weekStart)
+    private suspend fun getScheduleFromCache(
+        groupNumber: String,
+        weekStart: LocalDate,
+        allowGetExpired: Boolean = false
+    ): Schedule? =
+        scheduleCache.get(Key(groupNumber, weekStart.weekOfYear()))
+            ?.takeIfNotExpired(allowGetExpired)
             ?.also { log.debug("getScheduleFromCache: $groupNumber:${weekStart.weekOfSemester()}") }
 
     private suspend fun getScheduleFromRemote(groupNumber: String, weekStart: LocalDate): Schedule {
@@ -84,15 +88,19 @@ class ScheduleRepository(
         groupNumber: String,
         weekStart: LocalDate,
         schedule: Schedule
-    ) = scheduleCache.put(Key(groupNumber, weekStart.atSaturdayOfWeek().weekOfSemester()), schedule)
+    ) = scheduleCache.put(Key(groupNumber, weekStart.weekOfYear()), schedule)
 
     /**
      * Take schedule if it's first week is equal to weekStart
      */
-    private fun Schedule.takeIfNotExpired(weekStart: LocalDate): Schedule? {
+    private fun Schedule.takeIfNotExpired(allowGetExpired: Boolean): Schedule? {
+        if (allowGetExpired) return this
         val scheduleWeek = weeks.firstOrNull()?.weekOfYear ?: return null
-        val currentWeek = weekStart.weekOfYear()
-        if (scheduleWeek <= currentWeek) return this
+        val currentWeek = LocalDate.now().weekOfYear()
+        if (scheduleWeek <= currentWeek) {
+            log.debug("Schedule week ($scheduleWeek) <= current week ($currentWeek): take this schedule")
+            return this
+        }
         return null
     }
 }
