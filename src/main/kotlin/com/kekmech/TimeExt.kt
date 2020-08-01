@@ -17,7 +17,7 @@ fun LocalDate.atSaturdayOfWeek(): LocalDate = when (dayOfWeek) {
     else -> plusDays(6L - dayOfWeek.value)
 }
 
-fun LocalDate.weekOfYear(): Int = get(WeekFields.of(locale).weekOfWeekBasedYear())
+fun LocalDate.weekOfYear(defaultLocale: Locale = locale): Int = get(WeekFields.of(defaultLocale).weekOfWeekBasedYear())
 
 /**
  * The first day of the fall semester is always the 1th of September, unless the 1th of September is Sunday.
@@ -25,16 +25,16 @@ fun LocalDate.weekOfYear(): Int = get(WeekFields.of(locale).weekOfWeekBasedYear(
  * The maximum number of weeks in a semester is 18.
  * Summer time is from July to August. For this date range, and for school weeks greater than 18, -1 will be returned.
  */
-fun LocalDate.weekOfSemester(): Int {
+fun LocalDate.weekOfSemester(defaultLocale: Locale = locale): Int {
     val weekOfYear = when {
-        (month in Month.JULY..Month.AUGUST) -> -1 // summertime
+        (month == Month.JULY) -> -1 // summertime
         (month in Month.FEBRUARY..Month.JUNE) -> { // spring semester
             val firstOfFebruary = this
                 .withMonth(Month.FEBRUARY.value)
                 .withDayOfMonth(1)
             // if 1th of Febryary is Monday, return it's week number, else return next week number
-            if (firstOfFebruary.dayOfWeek == DayOfWeek.MONDAY) firstOfFebruary.weekOfYear()
-            else firstOfFebruary.weekOfYear() + 1
+            if (firstOfFebruary.dayOfWeek == DayOfWeek.MONDAY) firstOfFebruary.weekOfYear(defaultLocale)
+            else firstOfFebruary.weekOfYear(defaultLocale) + 1
         }
         else -> { // autumn semester
             val firstOfSeptember = this
@@ -42,11 +42,11 @@ fun LocalDate.weekOfSemester(): Int {
                 .withDayOfMonth(1)
             // if 1th of February is not Sunday, it's a working day, then return it's week number
             // else return next week number
-            if (firstOfSeptember.dayOfWeek != DayOfWeek.SUNDAY) firstOfSeptember.weekOfYear()
-            else firstOfSeptember.weekOfYear() + 1
+            if (firstOfSeptember.dayOfWeek != DayOfWeek.SUNDAY) firstOfSeptember.weekOfYear(defaultLocale)
+            else firstOfSeptember.weekOfYear(defaultLocale) + 1
         }
     }
-    return ((weekOfYear() - weekOfYear) + 1).let {
+    return ((weekOfYear(defaultLocale) - weekOfYear) + 1).let {
         if (it in 1..18) it else -1
     }
 }

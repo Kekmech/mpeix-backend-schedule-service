@@ -15,7 +15,7 @@ class AppModule : ModuleProvider({
     single { GsonFactory.create() } bind Gson::class
     single { HttpClientFactory.create() } bind HttpClient::class
     single { Slf4JLoggerFactory.getInstance("*") } bind InternalLogger::class
-    single { Locale.forLanguageTag("ru_RU") } bind Locale::class
+    single { Locale.GERMAN } bind Locale::class
     single { CacheFactory.create(get()) } bind CacheManager::class
 
     factory { ScheduleRepository(get(), get(), get(), get()) } bind ScheduleRepository::class

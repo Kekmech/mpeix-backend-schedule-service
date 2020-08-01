@@ -1,8 +1,9 @@
 import com.kekmech.*
 import org.junit.jupiter.api.*
 import java.time.*
+import java.util.*
 
-class TimeExtTests {
+class TimeExtTest {
 
     @Test
     fun atStartOfWeekTest() {
@@ -32,11 +33,25 @@ class TimeExtTests {
         assertEquals(datesSet, saturdayOfWeekSet)
     }
 
+    @Test
+    fun weekOfSemesterTest() {
+        val mockLocale = Locale.GERMAN // any locale where monday is first day of week
+        val weekSet = listOf(
+            LocalDate.of(2020, Month.SEPTEMBER, 3),
+            LocalDate.of(2020, Month.SEPTEMBER, 9),
+            LocalDate.of(2019, Month.SEPTEMBER, 1),
+            LocalDate.of(2019, Month.SEPTEMBER, 2),
+            LocalDate.of(2020, Month.MAY, 20)
+        ).map { it.weekOfSemester(mockLocale) }
+        val semesterNumberSet = listOf(1, 2, -1, 1, 16)
 
-    private fun assertEquals(listOfDate1: List<LocalDate>, listOfDate2: List<LocalDate>) {
-        println("list 1: $listOfDate1")
-        println("list 2: $listOfDate2")
-        assert(listOfDate1.size == listOfDate2.size)
-        listOfDate1.forEachIndexed { index, localDate -> assert(localDate == listOfDate2[index]) }
+        assertEquals(weekSet, semesterNumberSet)
+    }
+
+    private fun<T : Any> assertEquals(real: List<T>, expected: List<T>) {
+        println("expected:  $expected")
+        println("real data: $real")
+        assert(real.size == expected.size)
+        real.forEachIndexed { index, localDate -> assert(localDate == expected[index]) }
     }
 }
