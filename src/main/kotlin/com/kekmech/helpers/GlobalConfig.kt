@@ -15,6 +15,6 @@ object GlobalConfig {
 
     object Cache {
         val maxEntriesInRAM = System.getenv("CACHE_MAX_ENTRIES")?.toIntOrNull() ?: 120
-        val expirationRequestCount = System.getenv("CACHE_EXPIRATION_REQUEST_COUNT")?.toIntOrNull() ?: 100
+        val expirationRequestCount = System.getenv("CACHE_EXPIRATION_REQUEST_COUNT")?.toIntOrNull() ?: 30
     }
 }
