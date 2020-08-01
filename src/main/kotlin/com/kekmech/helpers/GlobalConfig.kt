@@ -12,4 +12,9 @@ object GlobalConfig {
         val user = System.getenv("DB_USER") ?: "postgres"
         val password = System.getenv("DB_PASSWORD") ?: "kek"
     }
+
+    object Cache {
+        val maxEntriesInRAM = System.getenv("CACHE_MAX_ENTRIES")?.toIntOrNull() ?: 120
+        val expirationRequestCount = System.getenv("CACHE_EXPIRATION_REQUEST_COUNT")?.toIntOrNull() ?: 100
+    }
 }

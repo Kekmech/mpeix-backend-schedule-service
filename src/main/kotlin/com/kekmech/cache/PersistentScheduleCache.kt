@@ -1,6 +1,7 @@
 package com.kekmech.cache
 
 import com.google.gson.*
+import com.kekmech.*
 import com.kekmech.cache.PersistentScheduleCache.*
 import com.kekmech.dto.*
 import com.kekmech.helpers.*
@@ -10,23 +11,29 @@ import java.io.*
 import java.lang.ref.*
 import java.util.*
 import java.util.function.*
+import kotlin.collections.HashMap
 
 class PersistentScheduleCache(
     private val gson: Gson
 ) : Cache<Key, Schedule> {
 
-    private val maxEntries = 120
+    private val maxEntries = GlobalConfig.Cache.maxEntriesInRAM
+    private val expirationRequestCount = GlobalConfig.Cache.expirationRequestCount
     private val cacheDir = File(GlobalConfig.persistentCacheDir)
     private val map = object : LinkedHashMap<Key, SoftReference<Schedule>>(maxEntries + 1, 1f) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Key, SoftReference<Schedule>>?) =
             size > maxEntries
     }
+    private val requestFreq = HashMap<Key, Int>()
 
     init {
         cacheDir.mkdirs()
     }
 
-    override fun clear() = map.clear()
+    override fun clear() {
+        map.clear()
+        requestFreq.clear()
+    }
 
     override fun containsKey(key: Key?) = key?.let(map::containsKey) ?: false
 
@@ -39,8 +46,14 @@ class PersistentScheduleCache(
     override fun spliterator(): Spliterator<Cache.Entry<Key, Schedule>> =
         throw NotImplementedError()
 
-    override fun get(key: Key?): Schedule? =
-        map[key]?.get() ?: getFromFile(key)
+    override fun get(key: Key?): Schedule? {
+        val result = map[key]?.get() ?: getFromFile(key)
+        if (result != null && key != null) {
+            requestFreq.countRequestFor(key)
+            if (requestFreq[key]!! > expirationRequestCount) throw ScheduleExpiredByRequestCount(result)
+        }
+        return result
+    }
 
     private fun getFromFile(key: Key?): Schedule? = key
         ?.let { File(cacheDir, "${it.groupName}_${it.weekOfSemester}").takeIf { it.exists() }?.readText() }
@@ -55,6 +68,7 @@ class PersistentScheduleCache(
         if (!GlobalConfig.cacheEmptySchedules && value.weeks.isEmpty()) return
         map[key] = SoftReference(value)
         putToFile(key, value)
+        requestFreq[key] = 0
     }
 
     private fun putToFile(key: Key, value: Schedule) =
@@ -111,4 +125,8 @@ class PersistentScheduleCache(
         val groupName: String,
         val weekOfSemester: Int
     )
+
+    private fun<K : Any, V : Any> HashMap<K, V>.countRequestFor(key: Key) {
+        requestFreq[key] = requestFreq.getOrDefault(key, 0) + 1
+    }
 }

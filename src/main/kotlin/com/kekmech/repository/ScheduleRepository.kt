@@ -53,18 +53,35 @@ class ScheduleRepository(
 
 
 
-    suspend fun getSchedule(groupNumber: String, weekStart: LocalDate): Schedule =
-        getScheduleFromCache(groupNumber, weekStart)
-            ?: getScheduleFromRemote(groupNumber, weekStart)
-                .also { insertScheduleToCache(groupNumber, weekStart, it) }
+    suspend fun getSchedule(groupNumber: String, weekStart: LocalDate): Schedule {
+        val (cachedSchedule, cacheIsExpired) = try {
+            getScheduleFromCache(groupNumber, weekStart) to false
+        } catch (e: ScheduleExpiredByRequestCount) {
+            e.schedule to true
+        }
+        if (cacheIsExpired) {
+            val remoteSchedule = try {
+                getScheduleFromRemote(groupNumber, weekStart)
+            } catch (e: Exception) {
+                null
+            }
+            if (remoteSchedule != null) {
+                insertScheduleToCache(groupNumber, weekStart, remoteSchedule)
+                return remoteSchedule
+            }
+        }
+        if (cachedSchedule != null) {
+            return cachedSchedule
+        } else {
+            throw MpeiBackendUnexpectedBehaviorException("GET_SCHEDULE_FROM_REMOTE_ERROR")
+        }
+    }
 
     private suspend fun getScheduleFromCache(
         groupNumber: String,
-        weekStart: LocalDate,
-        allowGetExpired: Boolean = false
+        weekStart: LocalDate
     ): Schedule? =
         scheduleCache.get(Key(groupNumber, weekStart.weekOfYear()))
-            ?.takeIfNotExpired(allowGetExpired)
             ?.also { log.debug("getScheduleFromCache: $groupNumber:${weekStart.weekOfSemester()}") }
 
     private suspend fun getScheduleFromRemote(groupNumber: String, weekStart: LocalDate): Schedule {
@@ -89,18 +106,4 @@ class ScheduleRepository(
         weekStart: LocalDate,
         schedule: Schedule
     ) = scheduleCache.put(Key(groupNumber, weekStart.weekOfYear()), schedule)
-
-    /**
-     * Take schedule if it's first week is equal to weekStart
-     */
-    private fun Schedule.takeIfNotExpired(allowGetExpired: Boolean): Schedule? {
-        if (allowGetExpired) return this
-        val scheduleWeek = weeks.firstOrNull()?.weekOfYear ?: return null
-        val currentWeek = LocalDate.now().weekOfYear()
-        if (scheduleWeek <= currentWeek) {
-            log.debug("Schedule week ($scheduleWeek) <= current week ($currentWeek): take this schedule")
-            return this
-        }
-        return null
-    }
 }
