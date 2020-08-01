@@ -14,7 +14,7 @@ import java.util.*
 class AppModule : ModuleProvider({
     single { GsonFactory.create() } bind Gson::class
     single { HttpClientFactory.create() } bind HttpClient::class
-    single { Slf4JLoggerFactory.getInstance("*") } bind InternalLogger::class
+    single { Slf4JLoggerFactory.getInstance("SCHEDULE") } bind InternalLogger::class
     single { Locale.GERMAN } bind Locale::class
     single { CacheFactory.create(get()) } bind CacheManager::class
 
