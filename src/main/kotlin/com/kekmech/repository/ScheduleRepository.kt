@@ -59,21 +59,21 @@ class ScheduleRepository(
         } catch (e: ScheduleExpiredByRequestCount) {
             e.schedule to true
         }
-        if (cacheIsExpired) {
-            log.debug("Cached schedule ($groupNumber) is expired, trying to update from remote...")
+        if (cacheIsExpired || cachedSchedule == null) {
+            log.debug("Cached schedule for $groupNumber is expired, trying to update from remote...")
             val remoteSchedule = try {
                 getScheduleFromRemote(groupNumber, weekStart)
             } catch (e: Exception) {
                 null
             }
             if (remoteSchedule != null) {
-                log.debug("Schedule ($groupNumber) successfully updated from remote :)")
+                log.debug("Schedule for $groupNumber successfully updated from remote")
                 insertScheduleToCache(groupNumber, weekStart, remoteSchedule)
                 return remoteSchedule
             }
         }
         if (cachedSchedule != null) {
-            if (cacheIsExpired) log.debug("Error occurred while update schedule from remote, return cached value")
+            if (cacheIsExpired) log.debug("Error while update schedule for $groupNumber, return cached value")
             return cachedSchedule
         } else {
             throw MpeiBackendUnexpectedBehaviorException("GET_SCHEDULE_FROM_REMOTE_ERROR")
