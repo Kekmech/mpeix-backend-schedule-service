@@ -99,7 +99,6 @@ repositories {
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:5.6.2"
-    implementation fileTree("lib") { include "*.jar" }
     implementation kotlin.stdlib
 
     implementation ktor.server_core
@@ -115,6 +114,8 @@ dependencies {
     implementation koin.koin
 
     implementation jsoup.jsoup
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
 
     implementation jooq.jooq
     implementation jooq.meta
