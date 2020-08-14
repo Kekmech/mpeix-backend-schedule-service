@@ -16,7 +16,7 @@ class AppModule : ModuleProvider({
     single { HttpClientFactory.create() } bind HttpClient::class
     single { Slf4JLoggerFactory.getInstance("SCHEDULE") } bind InternalLogger::class
     single { Locale.GERMAN } bind Locale::class
-    single { CacheFactory.create(get()) } bind CacheManager::class
+    single { CacheFactory.create(get(), get()) } bind CacheManager::class
 
     factory { ScheduleRepository(get(), get(), get(), get()) } bind ScheduleRepository::class
 })

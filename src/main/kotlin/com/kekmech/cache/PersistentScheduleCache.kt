@@ -5,6 +5,7 @@ import com.kekmech.*
 import com.kekmech.cache.PersistentScheduleCache.*
 import com.kekmech.dto.*
 import com.kekmech.helpers.*
+import io.netty.util.internal.logging.*
 import org.ehcache.*
 import org.ehcache.config.*
 import java.io.*
@@ -14,17 +15,19 @@ import java.util.function.*
 import kotlin.collections.HashMap
 
 class PersistentScheduleCache(
-    private val gson: Gson
+    private val gson: Gson,
+    private val maxEntries: Int = GlobalConfig.Cache.maxEntriesInRAM,
+    private val expirationRequestCount: Int = GlobalConfig.Cache.expirationRequestCount,
+    private val cacheDir: File = File(GlobalConfig.persistentCacheDir),
+    private val log: InternalLogger
 ) : Cache<Key, Schedule> {
 
-    private val maxEntries = GlobalConfig.Cache.maxEntriesInRAM
-    private val expirationRequestCount = GlobalConfig.Cache.expirationRequestCount
-    private val cacheDir = File(GlobalConfig.persistentCacheDir)
     private val map = object : LinkedHashMap<Key, SoftReference<Schedule>>(maxEntries + 1, 1f) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Key, SoftReference<Schedule>>?) =
             size > maxEntries
     }
     private val requestFreq = HashMap<Key, Int>()
+    private val mutex = Any()
 
     init {
         cacheDir.mkdirs()
@@ -47,18 +50,22 @@ class PersistentScheduleCache(
         throw NotImplementedError()
 
     override fun get(key: Key?): Schedule? {
-        val result = map[key]?.get() ?: getFromFile(key)
+        val result = synchronized(mutex) { map[key]?.get() ?: getFromFile(key) }
         if (result != null && key != null) {
-            requestFreq.countRequestFor(key)
+            incrementRequestCountFor(key)
             if (requestFreq[key]!! > expirationRequestCount) throw ScheduleExpiredByRequestCount(result)
         }
         return result
     }
 
-    private fun getFromFile(key: Key?): Schedule? = key
-        ?.let { File(cacheDir, "${it.groupName}_${it.weekOfSemester}").takeIf { it.exists() }?.readText() }
+    private fun getFromFile(key: Key?): Schedule? = try { key
+        ?.let { File(cacheDir, "${it.groupName}_${it.weekOfYear}").takeIf { it.exists() }?.readText() }
         ?.let { gson.fromJson(it, Schedule::class.java) }
         ?.also { put(key, it) }
+    } catch (e: Exception) {
+        log.debug("Read file from cache error (key=$key): $e")
+        null
+    }
 
     override fun getAll(keys: MutableSet<out Key>?): MutableMap<Key, Schedule> =
         throw NotImplementedError()
@@ -66,13 +73,15 @@ class PersistentScheduleCache(
     override fun put(key: Key?, value: Schedule?) {
         if (key == null || value == null) return
         if (!GlobalConfig.cacheEmptySchedules && value.weeks.isEmpty()) return
-        map[key] = SoftReference(value)
-        putToFile(key, value)
-        requestFreq[key] = 0
+        synchronized(mutex) {
+            map[key] = SoftReference(value)
+            putToFile(key, value)
+            requestFreq[key] = 0
+        }
     }
 
     private fun putToFile(key: Key, value: Schedule) =
-        File(cacheDir, "${key.groupName}_${key.weekOfSemester}").writeText(gson.toJson(value))
+        File(cacheDir, "${key.groupName}_${key.weekOfYear}").writeText(gson.toJson(value))
 
     override fun getRuntimeConfiguration(): CacheRuntimeConfiguration<Key, Schedule> =
         throw NotImplementedError()
@@ -123,10 +132,10 @@ class PersistentScheduleCache(
 
     data class Key(
         val groupName: String,
-        val weekOfSemester: Int
+        val weekOfYear: Int
     )
 
-    private fun<K : Any, V : Any> HashMap<K, V>.countRequestFor(key: Key) {
+    private fun incrementRequestCountFor(key: Key) = synchronized(mutex) {
         requestFreq[key] = requestFreq.getOrDefault(key, 0) + 1
     }
 }
