@@ -50,4 +50,4 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
       - name: Build with Gradle
-        run: ./gradlew -Pci assemble
+        run: ./gradlew -Pci build
