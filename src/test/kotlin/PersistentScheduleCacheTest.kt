@@ -24,11 +24,12 @@ class PersistentScheduleCacheTest {
             registerTypeAdapter(LocalTime::class.java, LocalTimeDeserializer())
             registerTypeAdapter(LocalDate::class.java, LocalDateDeserializer())
         }.create()
+        cacheDir.listFiles()?.forEach { it.delete() }
         persistentCache = PersistentScheduleCache(
             gson = gson,
             maxEntries = MAX_ENTRIES,
             expirationRequestCount = EXP_REQUEST_COUNT,
-            cacheDir = File("./cache/schedule_test"),
+            cacheDir = cacheDir,
             log = Slf4JLoggerFactory.getInstance("SCHEDULE")
         )
     }
@@ -40,6 +41,7 @@ class PersistentScheduleCacheTest {
             persistentCache.put(k, schedules[i])
             assert(persistentCache.get(k) == schedules[i])
         }
+        cacheDir.listFiles()?.forEach { it.delete() }
     }
 
     @Test
@@ -67,6 +69,18 @@ class PersistentScheduleCacheTest {
         thread2.start()
         thread1.join()
         thread2.join()
+        cacheDir.listFiles()?.forEach { it.delete() }
+    }
+
+    @Test
+    fun testMaxEntries() {
+        init()
+        keys.forEachIndexed { i, k ->
+            persistentCache.put(k, schedules[i])
+        }
+        cacheDir.listFiles()?.forEach { it.delete() }
+        assert(persistentCache.get(key7) == null)
+        assert(persistentCache.get(key8) != null)
     }
 
     companion object {
@@ -88,6 +102,8 @@ class PersistentScheduleCacheTest {
         val keys = listOf(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10)
 
         val schedules = Array(10) { randomSchedule() }.toList()
+
+        val cacheDir = File("./cache/schedule_test")
 
         private fun randomSchedule(): Schedule {
             val groupNumber = listOf("C-12-16","C-12-17","A-8-19","A-8-18").random()
