@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "Mpeix Backend"
-version = "1.0"
+version = "1.1.0"
 
 application {
     mainClassName = "com.kekmech.MainKt"
@@ -37,7 +37,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.8.0")
 
 
-    implementation("org.ehcache:ehcache:3.8.1")
+    //implementation("org.ehcache:ehcache:3.8.1")
+    implementation("com.github.ben-manes.caffeine:caffeine:2.8.5")
 
     implementation("org.koin:koin-core:2.1.6")
 

@@ -2,12 +2,12 @@ package com.kekmech
 
 object Endpoint {
     const val getGroupId = "/getGroupId"
-    const val getSchedule = "/getSchedule"
+    const val getGroupSchedule = "/getGroupSchedule"
 
     object Mpei {
-        object Timetable {
-            const val mainPage = "https://mpei.ru/Education/timetable/Pages/default.aspx"
-            const val scheduleViewPage = "https://mpei.ru/Education/timetable/Pages/table.aspx"
+        object Ruz {
+            const val search = "http://ts.mpei.ru/api/search"
+            const val schedule = "http://ts.mpei.ru/api/schedule/group" // + /$groupId
         }
     }
 }

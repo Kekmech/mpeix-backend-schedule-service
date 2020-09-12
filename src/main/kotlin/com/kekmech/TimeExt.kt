@@ -2,6 +2,7 @@ package com.kekmech
 
 import org.koin.java.KoinJavaComponent.inject
 import java.time.*
+import java.time.format.*
 import java.time.temporal.*
 import java.util.*
 
@@ -50,3 +51,9 @@ fun LocalDate.weekOfSemester(defaultLocale: Locale = locale): Int {
         if (it in 1..18) it else -1
     }
 }
+
+fun LocalDate.formatToMpei(): String =
+    format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+
+fun String.formatFromMpei(): LocalDate =
+    LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyy.MM.dd"))
