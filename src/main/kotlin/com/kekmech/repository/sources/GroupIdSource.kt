@@ -6,10 +6,12 @@ import com.kekmech.dto.*
 import com.kekmech.repository.*
 import io.ktor.client.*
 import io.ktor.client.request.*
+import io.netty.util.internal.logging.*
 import kotlinx.coroutines.*
 
 class GroupIdSource(
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val log: InternalLogger
 ) : DataSource<String, String> {
 
     private val cache: Cache<String, String> = Caffeine.newBuilder()
@@ -20,6 +22,7 @@ class GroupIdSource(
     override fun get(groupName: String): String? = cache.get(groupName, ::getFromRemote)
 
     private fun getFromRemote(groupName: String): String? = runBlocking {
+        log.debug("Get group id from remote: $groupName")
         val firstSearchResult = client
             .get<MpeiSearchResponse>(Endpoint.Mpei.Ruz.search) {
                 parameter("term", groupName)

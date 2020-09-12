@@ -7,11 +7,13 @@ import com.kekmech.helpers.*
 import com.kekmech.repository.*
 import io.ktor.client.*
 import io.ktor.client.request.*
+import io.netty.util.internal.logging.*
 import kotlinx.coroutines.*
 import java.util.concurrent.*
 
-class ScheduleSource(
+class GroupScheduleSource(
     private val client: HttpClient,
+    private val log: InternalLogger,
     private val groupIdSource: DataSource<String, String>
 ) : DataSource<Key, Schedule> {
 
@@ -23,6 +25,7 @@ class ScheduleSource(
     override fun get(k: Key): Schedule? = cache.get(k, ::getFromRemote)
 
     private fun getFromRemote(k: Key): Schedule? = runBlocking {
+        log.debug("Get schedule from remote: key=$k")
         val groupId = groupIdSource.get(k.groupName)!!
         val start = k.weekStart
         val finish = k.weekStart.plusDays(6)

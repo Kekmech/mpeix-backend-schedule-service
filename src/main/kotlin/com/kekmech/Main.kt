@@ -36,22 +36,22 @@ fun main(args: Array<String>) {
             }
         }
         install(StatusPages) {
-            exception<InvalidArgumentException> { cause ->
+            exception<ExternalException> { cause ->
+                call.respond(HttpStatusCode.ServiceUnavailable, cause.message.orEmpty())
+            }
+            exception<LogicException> { cause ->
+                call.respond(HttpStatusCode.InternalServerError, cause.message.orEmpty())
+            }
+            exception<ValidationException> { cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
             }
-            exception<MpeiBackendUnexpectedBehaviorException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
-            }
-            exception<KotlinNullPointerException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
-            }
-            exception<IllegalStateException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
+            exception<Exception> { cause ->
+                call.respond(HttpStatusCode.InternalServerError, cause.message.orEmpty())
             }
         }
         routing {
             getGroupId()
-            getSchedule()
+            getGroupSchedule()
             get("/") { call.respond(HttpStatusCode.OK, "Hello world") }
         }
     }
@@ -71,7 +71,7 @@ fun Route.getGroupId() = post(Endpoint.getGroupId) {
     call.respond(HttpStatusCode.OK, GetGroupIdResponse(groupNumber, groupId))
 }
 
-fun Route.getSchedule() = post(Endpoint.getSchedule) {
+fun Route.getGroupSchedule() = post(Endpoint.getGroupSchedule) {
     val request = call.receive<GetScheduleByGroupRequest>()
     val groupNumber = request.groupNumber.checkIsValidGroupNumber()
     val requestedWeekStart = request.weekOffset.let {

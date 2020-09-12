@@ -44,7 +44,7 @@ object ScheduleMapper {
             ))
         )
     } catch (e: Exception) {
-        throw BusinessException("Can't map remote data to internal data")
+        throw LogicException("Can't map remote data to internal data")
     }
 
     private fun getClassesTypeByName(type: String) = when {

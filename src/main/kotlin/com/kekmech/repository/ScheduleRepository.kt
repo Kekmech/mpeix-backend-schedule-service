@@ -1,16 +1,10 @@
 package com.kekmech.repository
 
+import com.kekmech.*
 import com.kekmech.dto.*
-import com.kekmech.dto.Key
-import io.ktor.client.*
-import io.netty.util.internal.logging.*
-import org.jooq.*
 import java.time.*
 
 class ScheduleRepository(
-    private val dsl: DSLContext,
-    private val client: HttpClient,
-    private val log: InternalLogger,
     private val groupIdSource: DataSource<String, String>,
     private val scheduleSource: DataSource<Key, Schedule>
 ) {

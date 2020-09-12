@@ -16,12 +16,11 @@ class AppModule : ModuleProvider({
     single { HttpClientFactory.create() } bind HttpClient::class
     single { Slf4JLoggerFactory.getInstance("SCHEDULE") } bind InternalLogger::class
     single { Locale.GERMAN } bind Locale::class
-    //single { CacheFactory.create(get(), get()) } bind CacheManager::class
 
-    single { GroupIdSource(get()) } bind GroupIdSource::class
-    single { ScheduleSource(get(), get<GroupIdSource>()) } bind ScheduleSource::class
+    single { GroupIdSource(get(), get()) } bind GroupIdSource::class
+    single { GroupScheduleSource(get(), get(), get<GroupIdSource>()) } bind GroupScheduleSource::class
     single {
-        ScheduleRepository(get(), get(), get(), get<GroupIdSource>(), get<ScheduleSource>())
+        ScheduleRepository(get<GroupIdSource>(), get<GroupScheduleSource>())
     } bind ScheduleRepository::class
 })
 

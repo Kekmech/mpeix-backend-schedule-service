@@ -19,7 +19,6 @@ object HttpClientFactory {
                 setDateFormat(DateFormat.LONG)
                 registerTypeAdapter(LocalDate::class.java, LocalDateSerializer())
                 registerTypeAdapter(LocalTime::class.java, LocalTimeSerializer())
-                registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
             }
         }
         engine {
