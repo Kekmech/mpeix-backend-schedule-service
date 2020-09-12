@@ -6,7 +6,7 @@ import io.ktor.http.*
 fun String?.checkIsValidGroupNumber(): String {
     if (!(this != null && matches("[а-яА-Я0-9-]{5,20}".toRegex())))
         throw InvalidArgumentException("INVALID_GROUP_NUMBER")
-    return this.toUpperCase().replace("-0", "-")
+    return this.toUpperCase()//.replace("-0", "-")
 }
 
 fun HttpResponse.checkGroupFound(): HttpResponse {

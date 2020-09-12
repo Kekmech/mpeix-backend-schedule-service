@@ -54,4 +54,18 @@ class TimeExtTest {
         assert(real.size == expected.size)
         real.forEachIndexed { index, localDate -> assert(localDate == expected[index]) }
     }
+
+    @Test
+    fun testSerialize() {
+        assert(
+            "2020.09.11".formatFromMpei() == LocalDate.of(2020, 9, 11)
+        )
+    }
+
+    @Test
+    fun testDeserialize() {
+        assert(
+            LocalDate.of(2020, 9, 11).formatToMpei() == "2020.09.11"
+        )
+    }
 }
