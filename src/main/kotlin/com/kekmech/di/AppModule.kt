@@ -18,7 +18,7 @@ class AppModule : ModuleProvider({
     single { Locale.GERMAN } bind Locale::class
 
     single { GroupIdSource(get(), get()) } bind GroupIdSource::class
-    single { GroupScheduleSource(get(), get(), get<GroupIdSource>()) } bind GroupScheduleSource::class
+    single { GroupScheduleSource(get(), get(), get(), get<GroupIdSource>()) } bind GroupScheduleSource::class
     single {
         ScheduleRepository(get<GroupIdSource>(), get<GroupScheduleSource>())
     } bind ScheduleRepository::class
