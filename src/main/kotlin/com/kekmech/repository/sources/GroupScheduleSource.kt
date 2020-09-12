@@ -15,16 +15,14 @@ class GroupScheduleSource(
     private val client: HttpClient,
     private val log: InternalLogger,
     private val groupIdSource: DataSource<String, String>
-) : DataSource<Key, Schedule> {
+) : DataSource<Key, Schedule>() {
 
-    private val cache: Cache<Key, Schedule> = Caffeine.newBuilder()
+    override val cache: Cache<Key, Schedule> = Caffeine.newBuilder()
         .maximumSize(GlobalConfig.Cache.maxEntriesInRAM)
         .expireAfterWrite(48, TimeUnit.HOURS)
         .build()
 
-    override fun get(k: Key): Schedule? = cache.get(k, ::getFromRemote)
-
-    private fun getFromRemote(k: Key): Schedule? = runBlocking {
+    override fun getFromRemote(k: Key): Schedule? = runBlocking {
         log.debug("Get schedule from remote: key=$k")
         val groupId = groupIdSource.get(k.groupName)!!
         val start = k.weekStart

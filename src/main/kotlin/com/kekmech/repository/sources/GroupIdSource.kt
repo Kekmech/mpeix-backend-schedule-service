@@ -12,16 +12,14 @@ import kotlinx.coroutines.*
 class GroupIdSource(
     private val client: HttpClient,
     private val log: InternalLogger
-) : DataSource<String, String> {
+) : DataSource<String, String>() {
 
-    private val cache: Cache<String, String> = Caffeine.newBuilder()
+    override val cache: Cache<String, String> = Caffeine.newBuilder()
         .maximumSize(1000)
         .build()
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun get(groupName: String): String? = cache.get(groupName, ::getFromRemote)
-
-    private fun getFromRemote(groupName: String): String? = runBlocking {
+    override fun getFromRemote(groupName: String): String? = runBlocking {
         log.debug("Get group id from remote: $groupName")
         val firstSearchResult = client
             .get<MpeiSearchResponse>(Endpoint.Mpei.Ruz.search) {
