@@ -70,9 +70,9 @@ object ScheduleMapper {
         time.start == LocalTime.parse("11:10") -> 2
         time.start == LocalTime.parse("13:45") -> 3
         time.start == LocalTime.parse("15:35") -> 4
-        time.start > LocalTime.parse("17:10") -> 5
-        time.start > LocalTime.parse("18:30") -> 6
-        time.start > LocalTime.parse("19:30") -> 7
+        time.start == LocalTime.parse("17:20") -> 5
+        time.start == LocalTime.parse("18:55") -> 6
+        time.start == LocalTime.parse("20:30") -> 7
         else -> -1
     }
 }
