@@ -57,3 +57,11 @@ fun LocalDate.formatToMpei(): String =
 
 fun String.formatFromMpei(): LocalDate =
     LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+
+fun moscowLocalTime(): LocalTime {
+    return LocalTime.now(ZoneId.of("Europe/Moscow"))
+}
+
+fun moscowLocalDate(): LocalDate {
+    return LocalDate.now(ZoneId.of("Europe/Moscow"))
+}

@@ -76,9 +76,9 @@ fun Route.getGroupSchedule() = post(Endpoint.getGroupSchedule) {
     val groupNumber = request.groupNumber.checkIsValidGroupNumber()
     val requestedWeekStart = request.weekOffset.let {
         if (it == 0) {
-            LocalDate.now().atStartOfWeek()
+            moscowLocalDate().atStartOfWeek()
         } else {
-            LocalDate.now().plusWeeks(it.toLong()).atStartOfWeek()
+            moscowLocalDate().plusWeeks(it.toLong()).atStartOfWeek()
         }
     }
     val schedule = scheduleRepository.getSchedule(groupNumber, requestedWeekStart)
