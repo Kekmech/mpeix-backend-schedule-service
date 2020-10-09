@@ -2,7 +2,7 @@ import java.util.*
 
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
     id("com.google.cloud.tools.jib") version "2.5.0"
 }
 

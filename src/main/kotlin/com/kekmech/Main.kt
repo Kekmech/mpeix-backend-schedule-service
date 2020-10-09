@@ -21,7 +21,7 @@ import java.time.*
 
 val scheduleRepository by inject(ScheduleRepository::class.java)
 
-fun main(args: Array<String>) {
+fun main() {
     initKoin()
     val server = embeddedServer(Netty, port = GlobalConfig.port) {
         install(DefaultHeaders)
