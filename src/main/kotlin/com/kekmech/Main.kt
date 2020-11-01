@@ -66,7 +66,7 @@ fun initKoin() = startKoin {
 }
 
 fun Route.getGroupId() = post(Endpoint.getGroupId) {
-    val groupNumber= call.receive<GetGroupIdRequest>().groupNumber.checkIsValidGroupNumber()
+    val groupNumber = call.receive<GetGroupIdRequest>().groupNumber.checkIsValidGroupNumber()
     val groupId = scheduleRepository.getGroupId(groupNumber)
     call.respond(HttpStatusCode.OK, GetGroupIdResponse(groupNumber, groupId))
 }

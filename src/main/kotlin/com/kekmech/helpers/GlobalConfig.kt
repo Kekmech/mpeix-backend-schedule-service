@@ -7,10 +7,9 @@ object GlobalConfig {
     val cacheEmptySchedules = System.getenv("CACHE_EMPTY_SCHEDULES") == "true"
 
     object DB {
-        val host = System.getenv("DB_HOST_NAME") ?: "localhost"
-        val name = System.getenv("DB_NAME") ?: "mpeix"
-        val user = System.getenv("DB_USER") ?: "postgres"
-        val password = System.getenv("DB_PASSWORD") ?: "kek"
+        val url = System.getenv("DB_URL") ?: "jdbc:postgresql://localhost:5432/mpeix"
+        val username = System.getenv("DB_USER") ?: "mpeix"
+        val password = System.getenv("DB_PASSWORD") ?: "mpeix"
     }
 
     object Cache {
