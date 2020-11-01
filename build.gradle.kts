@@ -36,13 +36,12 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.squareup.okhttp3:logging-interceptor:4.8.0")
 
-
-    //implementation("org.ehcache:ehcache:3.8.1")
     implementation("com.github.ben-manes.caffeine:caffeine:2.8.5")
 
     implementation("org.koin:koin-core:2.1.6")
 
     implementation("org.postgresql:postgresql:42.2.14")
+    implementation("com.zaxxer:HikariCP:3.4.5")
 
     implementation("org.jsoup:jsoup:1.13.1")
 
@@ -76,13 +75,13 @@ jib {
 tasks {
     compileKotlin {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
         }
     }
 
     compileTestKotlin {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
         }
     }
 
