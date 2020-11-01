@@ -35,7 +35,7 @@ class TimeExtTest {
 
     @Test
     fun weekOfSemesterTest() {
-        val mockLocale = Locale.GERMAN // any locale where monday is first day of week
+        val mockLocale = Locale.UK // any locale where monday is first day of week
         val weekSet = listOf(
             LocalDate.of(2020, Month.SEPTEMBER, 3),
             LocalDate.of(2020, Month.SEPTEMBER, 9),
