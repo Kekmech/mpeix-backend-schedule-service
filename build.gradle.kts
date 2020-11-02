@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "Mpeix Backend"
-version = "1.1.01"
+version = "1.1.02"
 
 application {
     mainClassName = "com.kekmech.MainKt"
