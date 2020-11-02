@@ -10,7 +10,7 @@ group = "Mpeix Backend"
 version = "1.1.02"
 
 application {
-    mainClassName = "com.kekmech.MainKt"
+    mainClass.set("com.kekmech.MainKt")
 }
 
 repositories {
@@ -69,6 +69,9 @@ jib {
             ports = listOf("8080", "2000-2003/udp", "80")
             volumes = listOf("/etc/ehcache/schedule")
         }
+    }
+    from {
+        image = "gcr.io/distroless/java:11"
     }
 }
 
