@@ -52,16 +52,37 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
 }
 
+data class JibCreds(val username: String, val password: String)
+
+fun getJibCredsFromSecretFile(): JibCreds? {
+    val secretsFile = File("${System.getProperty("user.home")}/mpeix/docker.secret")
+    if (!secretsFile.exists()) {
+        return null
+    }
+    val secrets = Properties().apply {
+        load(secretsFile.inputStream())
+    }
+    return JibCreds(secrets.getProperty("username"), secrets.getProperty("password"))
+}
+
+fun getJibCredsFromFromEnv(): JibCreds? {
+    val username = System.getenv("JIB_USER")
+    val password = System.getenv("JIB_PASSWORD")
+    return if (username != null && password != null) {
+        JibCreds(username, password)
+    } else {
+        null
+    }
+}
+
 jib {
     to {
-        image = "tonykolomeytsev/mpeix-backend-schedule-service:latest"
+        image = "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/applicaion:latest"
         auth {
-            val secretsFile = File("${System.getProperty("user.home")}/mpeix/docker.secret")
-            if (secretsFile.exists()) {
-                val secrets = Properties()
-                secrets.load(secretsFile.inputStream())
-                username = secrets.getProperty("username")
-                password = secrets.getProperty("password")
+            val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
+            if(creds != null) {
+                username = creds.username
+                password = creds.password
             }
         }
         container {
