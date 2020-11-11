@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "Mpeix Backend"
-version = "1.1.02"
+version = "1.1.2"
 
 application {
     mainClass.set("com.kekmech.MainKt")
@@ -77,7 +77,7 @@ fun getJibCredsFromFromEnv(): JibCreds? {
 
 jib {
     to {
-        image = "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/applicaion:latest"
+        image = "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/applicaion:${version}"
         auth {
             val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
             if(creds != null) {
