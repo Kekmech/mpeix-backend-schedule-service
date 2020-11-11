@@ -66,8 +66,8 @@ fun getJibCredsFromSecretFile(): JibCreds? {
 }
 
 fun getJibCredsFromFromEnv(): JibCreds? {
-    val username = System.getenv("JIB_USER")
-    val password = System.getenv("JIB_PASSWORD")
+    val username = System.getenv("REGISTRY_USER")
+    val password = System.getenv("REGISTRY_PASSWORD")
     return if (username != null && password != null) {
         JibCreds(username, password)
     } else {
@@ -77,7 +77,7 @@ fun getJibCredsFromFromEnv(): JibCreds? {
 
 jib {
     to {
-        image = "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/applicaion:${version}"
+        image = "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/application:${version}"
         auth {
             val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
             if(creds != null) {

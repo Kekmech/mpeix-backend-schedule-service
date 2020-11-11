@@ -36,8 +36,26 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
 
-      - name: Deploy
+      - name: Build and deploy docker image
         env:
-          JIB_USER: ${{ secrets.JIB_USER }}
-          JIB_PASSWORD: ${{ secrets.JIB_PASSWORD }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         run: ./gradlew -Djib.allowInsecureRegistries=true jib
+
+      - name: Materialize hosts
+        run: .ci/materialize.sh $ANSIBLE_HOSTS .ci/hosts.ini
+        env:
+          ANSIBLE_HOSTS: ${{ secrets.ANSIBLE_HOSTS }}
+
+      - name: Extract application version to vars file
+        run: .ci/export_application_version_to_env.sh
+
+      - name: Run deploy playbook
+        uses: arillso/action.playbook@master
+        with:
+          playbook: .ci/deploy-playbook.yaml
+          inventory: .ci/hosts.ini
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: 'false'
+          ANSIBLE_EXTRA_VARS: "application_version=${{env.APPLICATION_VERSION}} registry_user=${{secrets.REGISTRY_USER}} registry_password=${{secrets.REGISTRY_PASSWORD}} db_url=${{secrets.DB_URL}} db_user=${{secrets.DB_USER}} db_password=${{secrets.DB_PASSWORD}}"
