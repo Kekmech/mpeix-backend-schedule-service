@@ -3,11 +3,7 @@ name: Jib deploy
 on:
   push:
     branches:
-      - ci-cd
-  pull_request:
-    branches:
-      - master
-      - dev
+      - develop
 
 jobs:
   deploy:
