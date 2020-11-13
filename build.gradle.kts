@@ -25,7 +25,7 @@ dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib"))
 
-    implementation(platform(ktor("bom", "1.3.1")))
+    implementation(platform(ktor("bom", "1.4.2")))
     implementation(ktor("server-core"))
     implementation(ktor("server-netty"))
     implementation(ktor("gson"))
