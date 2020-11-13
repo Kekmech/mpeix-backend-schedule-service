@@ -14,8 +14,8 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import org.koin.core.context.*
 import org.koin.java.KoinJavaComponent.inject
+import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
 import java.text.*
 import java.time.*
@@ -23,7 +23,6 @@ import java.time.*
 val scheduleRepository by inject(ScheduleRepository::class.java)
 
 fun main() {
-    initKoin()
     val server = embeddedServer(Netty, port = GlobalConfig.port) {
         install(DefaultHeaders)
         install(Compression)
@@ -52,6 +51,11 @@ fun main() {
                 call.respond(HttpStatusCode.InternalServerError, cause.message.orEmpty())
             }
         }
+        install(Koin) {
+            printLogger()
+            modules(AppModule(), PostgresModule)
+        }
+
         routing {
             getGroupId()
             getGroupSchedule()
@@ -59,13 +63,6 @@ fun main() {
         }
     }
     server.start(wait = true)
-}
-
-fun initKoin() = startKoin {
-    modules(
-        AppModule(),
-        PostgresModule
-    )
 }
 
 fun Route.getGroupId() = post(Endpoint.getGroupId) {

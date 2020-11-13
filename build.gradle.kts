@@ -39,6 +39,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:_")
 
     implementation("org.koin:koin-core:_")
+    implementation("org.koin:koin-ktor:_")
 
     implementation("org.postgresql:postgresql:_")
     implementation("com.zaxxer:HikariCP:_")
