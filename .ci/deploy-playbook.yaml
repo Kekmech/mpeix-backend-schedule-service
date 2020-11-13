@@ -1,0 +1,28 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Log into DockerHub using a custom config file
+      docker_login:
+        registry: docker.pkg.github.com/kekmech/mpeix-backend-schedule-service
+        username: "{{registry_user}}"
+        password: "{{registry_password}}"
+
+    - name: Pull application Docker image
+      docker_image:
+        name: "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/application:{{application_version}}"
+        source: pull
+
+    - name: Create application container
+      docker_container:
+        name: "schedule"
+        image: "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/application:{{application_version}}"
+        recreate: true
+        env:
+          PORT: "8081"
+          DB_URL: "{{db_url}}"
+          DB_USER: "{{db_user}}"
+          DB_PASSWORD: "{{db_password}}"
+        published_ports:
+          - "8081:8081"
