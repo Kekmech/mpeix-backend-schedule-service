@@ -16,6 +16,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.koin.core.context.*
 import org.koin.java.KoinJavaComponent.inject
+import org.slf4j.event.Level
 import java.text.*
 import java.time.*
 
@@ -26,7 +27,9 @@ fun main() {
     val server = embeddedServer(Netty, port = GlobalConfig.port) {
         install(DefaultHeaders)
         install(Compression)
-        install(CallLogging)
+        install(CallLogging) {
+            level = Level.INFO
+        }
         install(ContentNegotiation) {
             gson {
                 setDateFormat(DateFormat.LONG)
