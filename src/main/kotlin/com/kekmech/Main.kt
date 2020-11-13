@@ -52,7 +52,7 @@ fun main() {
         routing {
             getGroupId()
             getGroupSchedule()
-            get("/") { call.respond(HttpStatusCode.OK, "Hello world") }
+            healthCheck()
         }
     }
     server.start(wait = true)
@@ -83,4 +83,8 @@ fun Route.getGroupSchedule() = post(Endpoint.getGroupSchedule) {
     }
     val schedule = scheduleRepository.getSchedule(groupNumber, requestedWeekStart)
     call.respond(HttpStatusCode.OK, schedule)
+}
+
+fun Route.healthCheck() = get(Endpoint.health) {
+    call.respond(HttpStatusCode.OK, "health")
 }

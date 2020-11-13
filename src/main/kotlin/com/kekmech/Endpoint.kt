@@ -3,6 +3,7 @@ package com.kekmech
 object Endpoint {
     const val getGroupId = "/getGroupId"
     const val getGroupSchedule = "/getGroupSchedule"
+    const val health = "/health"
 
     object Mpei {
         object Ruz {
