@@ -19,6 +19,7 @@ import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
 import java.text.*
 import java.time.*
+import java.util.*
 
 val scheduleRepository by inject(ScheduleRepository::class.java)
 
@@ -28,6 +29,7 @@ fun main() {
         install(Compression)
         install(CallLogging) {
             level = Level.INFO
+            callIdMdc("requestId")
         }
         install(ContentNegotiation) {
             gson {
@@ -54,6 +56,11 @@ fun main() {
         install(Koin) {
             printLogger()
             modules(AppModule(), PostgresModule)
+        }
+        install(CallId) {
+            generate { UUID.randomUUID().toString() }
+            verify { it.isNotEmpty() }
+            header("REQUEST_ID")
         }
 
         routing {
