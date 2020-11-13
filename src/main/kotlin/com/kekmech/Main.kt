@@ -9,11 +9,14 @@ import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
 import io.ktor.http.*
+import io.ktor.metrics.micrometer.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.koin.java.KoinJavaComponent.inject
 import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
@@ -62,7 +65,13 @@ fun main() {
             verify { it.isNotEmpty() }
             header("REQUEST_ID")
         }
-
+        install(MicrometerMetrics) {
+            registry = SimpleMeterRegistry()
+            distributionStatisticConfig = DistributionStatisticConfig.Builder()
+                .percentilesHistogram(true)
+                .percentiles(0.9, 0.99)
+                .build()
+        }
         routing {
             getGroupId()
             getGroupSchedule()

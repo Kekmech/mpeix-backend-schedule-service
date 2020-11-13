@@ -29,6 +29,7 @@ dependencies {
     implementation(ktor("server-core"))
     implementation(ktor("server-netty"))
     implementation(ktor("gson"))
+    implementation(ktor("metrics-micrometer"))
     implementation(ktor("client-gson"))
     implementation(ktor("client-okhttp"))
     implementation(ktor("network-tls"))
