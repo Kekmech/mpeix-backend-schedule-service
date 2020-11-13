@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "Mpeix Backend"
-version = "1.1.02"
+version = "1.1.3"
 
 application {
     mainClass.set("com.kekmech.MainKt")
@@ -18,14 +18,14 @@ repositories {
     jcenter()
 }
 
-fun ktor(module: String, version: String? = null) = "io.ktor:ktor-$module${version?.let { ":$version" } ?: ""}"
-fun jooq(module: String, version: String? = null) = "org.jooq:jooq$module${version?.let { ":$version" } ?: ""}"
+fun ktor(module: String, version: String? = "_") = "io.ktor:ktor-$module${version?.let { ":$version" } ?: ""}"
+fun jooq(module: String = "", version: String? = "_") = "org.jooq:jooq${if(module.isNotBlank()) "-$module" else ""}${version?.let { ":$version" } ?: ""}"
 
 dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib"))
 
-    implementation(platform(ktor("bom", "1.4.2")))
+    implementation(platform(ktor("bom")))
     implementation(ktor("server-core"))
     implementation(ktor("server-netty"))
     implementation(ktor("gson"))
@@ -33,23 +33,23 @@ dependencies {
     implementation(ktor("client-okhttp"))
     implementation(ktor("network-tls"))
 
-    implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.8.0")
+    implementation("ch.qos.logback:logback-classic:_")
+    implementation("com.squareup.okhttp3:logging-interceptor:_")
 
-    implementation("com.github.ben-manes.caffeine:caffeine:2.8.5")
+    implementation("com.github.ben-manes.caffeine:caffeine:_")
 
-    implementation("org.koin:koin-core:2.1.6")
+    implementation("org.koin:koin-core:_")
 
-    implementation("org.postgresql:postgresql:42.2.14")
-    implementation("com.zaxxer:HikariCP:3.4.5")
+    implementation("org.postgresql:postgresql:_")
+    implementation("com.zaxxer:HikariCP:_")
 
-    implementation("org.jsoup:jsoup:1.13.1")
+    implementation("org.jsoup:jsoup:_")
 
-    implementation(jooq("", "3.13.4"))
-    implementation(jooq("-meta", "3.13.4"))
-    implementation(jooq("-codegen", "3.13.4"))
+    implementation(jooq())
+    implementation(jooq("meta"))
+    implementation(jooq("codegen"))
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:_")
 }
 
 jib {
