@@ -10,7 +10,7 @@ group = "Mpeix Backend"
 version = "1.1.3"
 
 application {
-    mainClass.set("com.kekmech.MainKt")
+    mainClass.set("com.kekmech.schedule.MainKt")
 }
 
 repositories {
