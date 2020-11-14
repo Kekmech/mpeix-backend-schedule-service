@@ -28,6 +28,7 @@ dependencies {
     implementation(platform(ktor("bom")))
     implementation(ktor("server-netty"))
     implementation(ktor("gson"))
+    implementation(ktor("locations"))
     implementation(ktor("metrics-micrometer"))
     implementation(ktor("client-gson"))
     implementation(ktor("client-okhttp"))
@@ -82,6 +83,7 @@ tasks {
     compileKotlin {
         kotlinOptions {
             jvmTarget = "11"
+            freeCompilerArgs += "-Xopt-in=io.ktor.locations.KtorExperimentalLocationsAPI"
         }
     }
 

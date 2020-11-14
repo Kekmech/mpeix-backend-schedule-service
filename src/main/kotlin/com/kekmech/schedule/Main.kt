@@ -3,9 +3,6 @@ package com.kekmech.schedule
 import com.kekmech.schedule.di.AppModule
 import com.kekmech.schedule.di.ConfigurationModule
 import com.kekmech.schedule.di.PostgresModule
-import com.kekmech.schedule.dto.GetGroupIdRequest
-import com.kekmech.schedule.dto.GetGroupIdResponse
-import com.kekmech.schedule.dto.GetScheduleByGroupRequest
 import com.kekmech.schedule.gson.LocalDateSerializer
 import com.kekmech.schedule.gson.LocalDateTimeSerializer
 import com.kekmech.schedule.gson.LocalTimeSerializer
@@ -16,14 +13,10 @@ import io.ktor.features.*
 import io.ktor.gson.*
 import io.ktor.http.*
 import io.ktor.metrics.micrometer.*
-import io.ktor.request.*
 import io.ktor.response.*
-import io.ktor.routing.*
 import io.ktor.server.netty.*
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.inject
 import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
@@ -82,41 +75,4 @@ fun Application.main() {
             .percentiles(0.9, 0.99)
             .build()
     }
-
-    routing {
-        getGroupId()
-        getGroupSchedule()
-        healthCheck()
-    }
-
-    // Workaround for bug https://youtrack.jetbrains.com/issue/KTOR-1286
-    receivePipeline.intercept(ApplicationReceivePipeline.Before) {
-        withContext(Dispatchers.IO) {
-            proceed()
-        }
-    }
-}
-
-fun Route.getGroupId() = post(Endpoint.getGroupId) {
-    val groupNumber = call.receive<GetGroupIdRequest>().groupNumber.checkIsValidGroupNumber()
-    val groupId = scheduleRepository.getGroupId(groupNumber)
-    call.respond(HttpStatusCode.OK, GetGroupIdResponse(groupNumber, groupId))
-}
-
-fun Route.getGroupSchedule() = post(Endpoint.getGroupSchedule) {
-    val request = call.receive<GetScheduleByGroupRequest>()
-    val groupNumber = request.groupNumber.checkIsValidGroupNumber()
-    val requestedWeekStart = request.weekOffset.let {
-        if (it == 0) {
-            moscowLocalDate().atStartOfWeek()
-        } else {
-            moscowLocalDate().plusWeeks(it.toLong()).atStartOfWeek()
-        }
-    }
-    val schedule = scheduleRepository.getSchedule(groupNumber, requestedWeekStart)
-    call.respond(HttpStatusCode.OK, schedule)
-}
-
-fun Route.healthCheck() = get(Endpoint.health) {
-    call.respond(HttpStatusCode.OK, "health")
 }

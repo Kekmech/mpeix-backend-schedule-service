@@ -3,7 +3,6 @@ package com.kekmech.schedule.repository.sources
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.google.gson.Gson
-import com.kekmech.schedule.Endpoint
 import com.kekmech.schedule.configuration.CacheConfiguration
 import com.kekmech.schedule.dto.Key
 import com.kekmech.schedule.dto.MpeiScheduleResponse
@@ -41,7 +40,7 @@ class GroupScheduleSource(
         val start = k.weekStart
         val finish = k.weekStart.plusDays(6)
         client
-            .get<MpeiScheduleResponse>("${Endpoint.Mpei.Ruz.schedule}/$groupId") {
+            .get<MpeiScheduleResponse>("http://ts.mpei.ru/api/schedule/group/$groupId") {
                 parameter("start", start.formatToMpei())
                 parameter("finish", finish.formatToMpei())
             }

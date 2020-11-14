@@ -2,7 +2,6 @@ package com.kekmech.schedule.repository.sources
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.kekmech.schedule.Endpoint
 import com.kekmech.schedule.ExternalException
 import com.kekmech.schedule.dto.MpeiSearchResponse
 import com.kekmech.schedule.repository.DataSource
@@ -24,7 +23,7 @@ class GroupIdSource(
     override fun getFromRemote(groupName: String): String? = runBlocking {
         log.debug("Get group id from remote: $groupName")
         val firstSearchResult = client
-            .get<MpeiSearchResponse>(Endpoint.Mpei.Ruz.search) {
+            .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
                 parameter("term", groupName)
                 parameter("type", "group")
             }
