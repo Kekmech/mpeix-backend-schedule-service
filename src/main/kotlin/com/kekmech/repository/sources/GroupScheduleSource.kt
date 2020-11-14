@@ -3,6 +3,7 @@ package com.kekmech.repository.sources
 import com.github.benmanes.caffeine.cache.*
 import com.google.gson.*
 import com.kekmech.*
+import com.kekmech.configuration.CacheConfiguration
 import com.kekmech.dto.*
 import com.kekmech.helpers.*
 import com.kekmech.repository.*
@@ -14,6 +15,7 @@ import java.io.*
 import java.util.concurrent.*
 
 class GroupScheduleSource(
+    private val cacheConfiguration: CacheConfiguration,
     private val client: HttpClient,
     private val log: InternalLogger,
     private val gson: Gson,
@@ -24,7 +26,7 @@ class GroupScheduleSource(
     private val executor = Executors.newSingleThreadExecutor()
 
     override val cache: Cache<Key, Schedule> = Caffeine.newBuilder()
-        .maximumSize(GlobalConfig.Cache.maxEntriesInRAM)
+        .maximumSize(cacheConfiguration.limit)
         .expireAfterWrite(48, TimeUnit.HOURS)
         .build()
 
@@ -43,13 +45,13 @@ class GroupScheduleSource(
 
     override fun putToPersistent(k: Key, v: Schedule) = executor.execute {
         log.debug("Put schedule to persistent: key=$k")
-        File(GlobalConfig.persistentCacheDir, k.serialize())
+        File(cacheConfiguration.dir, k.serialize())
             .writeText(gson.toJson(v))
     }
 
     override fun getFromPersistent(k: Key): Schedule? {
         return executor.submit<Schedule?> {
-            val file = File(GlobalConfig.persistentCacheDir, k.serialize())
+            val file = File(cacheConfiguration.dir, k.serialize())
             if (file.exists()) {
                 log.debug("Get schedule from persistent: key=$k")
                 return@submit gson.fromJson(file.readText(), Schedule::class.java)

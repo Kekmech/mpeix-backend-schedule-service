@@ -3,7 +3,7 @@ import java.util.*
 plugins {
     application
     kotlin("jvm") version "1.4.10"
-    id("com.google.cloud.tools.jib") version "2.5.0"
+    id("com.google.cloud.tools.jib")
 }
 
 group = "Mpeix Backend"
@@ -23,10 +23,9 @@ fun jooq(module: String = "", version: String? = "_") = "org.jooq:jooq${if(modul
 
 dependencies {
     implementation(platform(kotlin("bom")))
-    implementation(kotlin("stdlib"))
+    implementation(kotlin("stdlib-jdk8"))
 
     implementation(platform(ktor("bom")))
-    implementation(ktor("server-core"))
     implementation(ktor("server-netty"))
     implementation(ktor("gson"))
     implementation(ktor("metrics-micrometer"))
@@ -36,6 +35,8 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:_")
     implementation("com.squareup.okhttp3:logging-interceptor:_")
+
+    implementation("io.github.config4k:config4k:_")
 
     implementation("com.github.ben-manes.caffeine:caffeine:_")
 

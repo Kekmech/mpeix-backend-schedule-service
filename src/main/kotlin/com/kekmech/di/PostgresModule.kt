@@ -1,7 +1,7 @@
 package com.kekmech.di
 
+import com.kekmech.configuration.DatabaseConfiguration
 import com.kekmech.helpers.*
-import com.kekmech.helpers.GlobalConfig.DB
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jooq.*
@@ -10,16 +10,16 @@ import org.koin.dsl.*
 
 object PostgresModule : ModuleProvider({
 
-    fun initPostgreSql(): DSLContext {
+    fun initPostgreSql(dbConfiguration: DatabaseConfiguration): DSLContext {
         val config = HikariConfig().apply {
-            jdbcUrl = DB.url
-            this.username = DB.username
-            this.password = DB.password
+            jdbcUrl = dbConfiguration.url
+            this.username = dbConfiguration.user
+            this.password = dbConfiguration.password
             minimumIdle = 1
             maximumPoolSize = 5
         }
         return DSL.using(HikariDataSource(config), SQLDialect.POSTGRES)
     }
 
-    single { initPostgreSql() } bind DSLContext::class
+    single { initPostgreSql(get()) } bind DSLContext::class
 })
