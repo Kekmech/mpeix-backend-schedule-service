@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MainKt" type="JetRunConfigurationType" nameIsGenerated="true">
+  <configuration default="false" name="RunDev" type="JetRunConfigurationType">
     <module name="mpeix-backend-schedule-service.main" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
