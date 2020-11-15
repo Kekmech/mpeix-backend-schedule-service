@@ -1,14 +1,13 @@
-name: Kotlin Build
+name: Gradle Build
 
 on:
   push:
     branches:
       - master
-      - dev
   pull_request:
     branches:
       - master
-      - dev
+      - develop
 
 jobs:
   test:
