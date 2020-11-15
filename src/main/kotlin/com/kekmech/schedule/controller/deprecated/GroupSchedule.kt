@@ -1,4 +1,4 @@
-package com.kekmech.schedule.controller
+package com.kekmech.schedule.controller.deprecated
 
 import com.kekmech.schedule.*
 import com.kekmech.schedule.dto.GetScheduleByGroupRequest

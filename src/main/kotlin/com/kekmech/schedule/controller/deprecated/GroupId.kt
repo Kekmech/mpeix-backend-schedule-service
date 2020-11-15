@@ -1,4 +1,4 @@
-package com.kekmech.schedule.controller
+package com.kekmech.schedule.controller.deprecated
 
 import com.kekmech.schedule.checkIsValidGroupNumber
 import com.kekmech.schedule.dto.GetGroupIdRequest

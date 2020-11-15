@@ -1,5 +1,7 @@
 package com.kekmech.schedule.controller
 
+import com.kekmech.schedule.controller.deprecated.getGroupId
+import com.kekmech.schedule.controller.deprecated.getGroupSchedule
 import io.ktor.application.*
 import io.ktor.locations.*
 import io.ktor.request.*
