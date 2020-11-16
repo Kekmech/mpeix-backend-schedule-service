@@ -77,7 +77,7 @@ fun getJibCredsFromFromEnv(): JibCreds? {
 
 jib {
     to {
-        image = "docker.pkg.github.com/kekmech/mpeix-backend-schedule-service/application:${version}"
+        image = "docker.pkg.github.com/kekmech/mpeix-schedule/application:${version}"
         auth {
             val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
             if(creds != null) {
