@@ -2,12 +2,12 @@ import java.util.*
 
 plugins {
     application
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
     id("com.google.cloud.tools.jib")
 }
 
 group = "Mpeix Backend"
-version = "1.1.4"
+version = "2020.0.0"
 
 application {
     mainClass.set("com.kekmech.schedule.MainKt")
@@ -81,7 +81,7 @@ fun getJibCredsFromFromEnv(): JibCreds? {
 
 jib {
     to {
-        image = "docker.pkg.github.com/kekmech/mpeix-schedule/application:${version}"
+        image = "manager.kekmech.com:5000/mpeix-schedule:${version}"
         auth {
             val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
             if(creds != null) {
@@ -90,9 +90,7 @@ jib {
             }
         }
         container {
-            mainClass = "com.kekmech.MainKt"
-            ports = listOf("8080", "2000-2003/udp", "80")
-            volumes = listOf("/etc/ehcache/schedule")
+            mainClass = "com.kekmech.schedule.MainKt"
         }
     }
     from {

@@ -6,7 +6,7 @@
 # Tool for updating service with portainer api
 #
 # Usage:
-#  $ ./portainer_update_service.sh login password host endpoint_id service_name image_name
+#  $ ./portainer_update_service.sh login password host endpoint_id service_name image_name registry_token
 # Requirements
 # * curl
 # * jq
@@ -17,6 +17,7 @@ HOST=$3
 ENDPOINT_ID=$4
 SERVICE_NAME=$5
 IMAGE_NAME=$6
+REGISTRY_TOKEN=$7
 
 LOGIN_TOKEN=$(curl -s -H "Content-Type: application/json" -d "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}" -X POST $HOST/api/auth | jq -r .jwt)
 if [ $? -eq 1 ]; then
@@ -38,6 +39,7 @@ VERSION=$(echo "$SERVICE" | jq .Version.Index)
 UPDATE=$(echo "$SPEC" | jq ".TaskTemplate.ContainerSpec.Image |= \"$IMAGE_NAME\" " | jq ".TaskTemplate.ForceUpdate |= 1 ")
 
 curl -s -H "Content-Type: text/json; charset=utf-8" \
+-H "X-Registry-Auth: $REGISTRY_TOKEN" \
 -H "Authorization: Bearer $LOGIN_TOKEN" -X POST -d "${UPDATE}" \
 "$HOST/api/endpoints/${ENDPOINT_ID}/docker/services/$ID/update?version=$VERSION"
 if [ $? -eq 1 ]; then

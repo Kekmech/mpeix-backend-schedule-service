@@ -1,4 +1,4 @@
-name: Jib deploy
+name: Project workflow
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    name: Build and deploy project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -42,4 +43,5 @@ jobs:
         run: .ci/export_application_version_to_env.sh
 
       - name: Update application with Portainer API
-        run: .ci/portainer_update_service.sh ${{secrets.MPEIX_PORTAINER_USER}} ${{secrets.MPEIX_PORTAINER_PASSWORD}} ${{secrets.PORTAINER_URL}} ${{secrets.DEV_API_ENDPOINT_ID}} "mpeix_schedule" "docker.pkg.github.com/kekmech/mpeix-schedule/application:${{env.APPLICATION_VERSION}}"
+        run: .ci/portainer_update_service.sh ${{secrets.MPEIX_PORTAINER_USER}} ${{secrets.MPEIX_PORTAINER_PASSWORD}} ${{secrets.PORTAINER_URL}} ${{secrets.DEV_API_ENDPOINT_ID}} "mpeix_schedule" "manager.kekmech.com:5000/mpeix-schedule:${{env.APPLICATION_VERSION}}" "${{env.REGISTRY_AUTH_TOKEN}}"
+
