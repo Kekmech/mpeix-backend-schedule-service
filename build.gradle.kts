@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "Mpeix Backend"
-version = "1.1.3"
+version = "1.1.4"
 
 application {
     mainClass.set("com.kekmech.schedule.MainKt")
