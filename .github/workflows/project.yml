@@ -37,11 +37,12 @@ jobs:
         env:
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          BUILD_VERSION: ${{ github.run_number }}
         run: ./gradlew -Djib.allowInsecureRegistries=true jib
 
       - name: Extract application version to vars file
         run: .ci/export_application_version_to_env.sh
 
       - name: Update application with Portainer API
-        run: .ci/portainer_update_service.sh ${{secrets.MPEIX_PORTAINER_USER}} ${{secrets.MPEIX_PORTAINER_PASSWORD}} ${{secrets.PORTAINER_URL}} ${{secrets.DEV_API_ENDPOINT_ID}} "mpeix_schedule" "manager.kekmech.com:5000/mpeix-schedule:${{env.APPLICATION_VERSION}}" "${{env.REGISTRY_AUTH_TOKEN}}"
+        run: .ci/portainer_update_service.sh ${{secrets.MPEIX_PORTAINER_USER}} ${{secrets.MPEIX_PORTAINER_PASSWORD}} ${{secrets.PORTAINER_URL}} ${{secrets.DEV_API_ENDPOINT_ID}} "mpeix_schedule" "manager.kekmech.com:5000/mpeix-schedule:${{env.APPLICATION_VERSION}}-${{github.run_number}}" "${{env.REGISTRY_AUTH_TOKEN}}"
 

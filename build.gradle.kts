@@ -79,9 +79,18 @@ fun getJibCredsFromFromEnv(): JibCreds? {
     }
 }
 
+fun getImageVersion() = buildString {
+    append(version)
+    val buildVersion = System.getenv("BUILD_VERSION")
+    if(buildVersion != null) {
+        append("-")
+        append(buildVersion)
+    }
+}
+
 jib {
     to {
-        image = "manager.kekmech.com:5000/mpeix-schedule:${version}"
+        image = "manager.kekmech.com:5000/mpeix-schedule:${getImageVersion()}"
         auth {
             val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
             if(creds != null) {
