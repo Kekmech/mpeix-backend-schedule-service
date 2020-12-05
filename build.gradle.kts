@@ -91,6 +91,7 @@ fun getImageVersion() = buildString {
 jib {
     to {
         image = "manager.kekmech.com:5000/mpeix-schedule:${getImageVersion()}"
+        tags = tags + "latest"
         auth {
             val creds = getJibCredsFromFromEnv() ?: getJibCredsFromSecretFile()
             if(creds != null) {
