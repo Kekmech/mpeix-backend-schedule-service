@@ -1,5 +1,6 @@
 package com.kekmech.schedule
 
+import com.kekmech.schedule.controller.restModule
 import com.kekmech.schedule.di.AppModule
 import com.kekmech.schedule.di.ConfigurationModule
 import com.kekmech.schedule.di.PostgresModule

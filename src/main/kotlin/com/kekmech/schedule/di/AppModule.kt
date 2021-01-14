@@ -7,6 +7,7 @@ import com.kekmech.schedule.helpers.ModuleProvider
 import com.kekmech.schedule.repository.ScheduleRepository
 import com.kekmech.schedule.repository.sources.GroupIdSource
 import com.kekmech.schedule.repository.sources.GroupScheduleSource
+import com.kekmech.schedule.repository.sources.SessionSource
 import io.ktor.client.*
 import io.netty.util.internal.logging.InternalLogger
 import io.netty.util.internal.logging.Slf4JLoggerFactory
@@ -22,8 +23,9 @@ class AppModule : ModuleProvider({
 
     single { GroupIdSource(get(), get()) } bind GroupIdSource::class
     single { GroupScheduleSource(get(), get(), get(), get(), get<GroupIdSource>()) } bind GroupScheduleSource::class
+    single { SessionSource(get(), get(), get(), get()) } bind SessionSource::class
     single {
-        ScheduleRepository(get<GroupIdSource>(), get<GroupScheduleSource>())
+        ScheduleRepository(get<GroupIdSource>(), get<GroupScheduleSource>(), get<SessionSource>())
     } bind ScheduleRepository::class
 })
 

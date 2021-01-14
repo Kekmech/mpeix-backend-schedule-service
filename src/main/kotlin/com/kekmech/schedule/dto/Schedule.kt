@@ -38,4 +38,4 @@ data class Time(
     val end: LocalTime = LocalTime.now()
 ) : Serializable
 
-enum class ClassesType : Serializable { UNDEFINED, LECTURE, PRACTICE, LAB, COURSE }
+enum class ClassesType : Serializable { UNDEFINED, LECTURE, PRACTICE, LAB, COURSE, CONSULTATION, EXAM }
