@@ -20,6 +20,7 @@ object ScheduleMapper {
                 Classes(
                     name = it.discipline,
                     type = getClassesTypeByName(it.kindOfWork.toUpperCase()),
+                    rawType = it.kindOfWork.toUpperCase(),
                     place = it.auditorium,
                     groups = it.stream ?: it.group ?: "",
                     person = it.lecturer,
@@ -58,8 +59,6 @@ object ScheduleMapper {
         type.contains("ЛАБ") -> ClassesType.LAB
         type.contains("ПРАК") -> ClassesType.PRACTICE
         type.contains("КУРС") -> ClassesType.COURSE
-        type.contains("КОНС") -> ClassesType.CONSULTATION
-        type.contains("ЭКЗ") -> ClassesType.EXAM
         else -> ClassesType.UNDEFINED
     }
 

@@ -30,7 +30,9 @@ data class Classes(
     val groups: String = "",
     val person: String = "",
     val time: Time = Time(),
-    val number: Int
+    val number: Int,
+    @Transient
+    val rawType: String = ""
 ) : Serializable
 
 data class Time(
@@ -38,4 +40,4 @@ data class Time(
     val end: LocalTime = LocalTime.now()
 ) : Serializable
 
-enum class ClassesType : Serializable { UNDEFINED, LECTURE, PRACTICE, LAB, COURSE, CONSULTATION, EXAM }
+enum class ClassesType : Serializable { UNDEFINED, LECTURE, PRACTICE, LAB, COURSE }
