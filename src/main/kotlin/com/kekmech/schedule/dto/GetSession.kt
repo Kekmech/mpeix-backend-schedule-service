@@ -2,6 +2,7 @@ package com.kekmech.schedule.dto
 
 import java.time.LocalDate
 
+@Deprecated("Deprecated in MpeiX v1.4 and higher")
 data class GetSessionRequest(
     val groupNumber: String
 )

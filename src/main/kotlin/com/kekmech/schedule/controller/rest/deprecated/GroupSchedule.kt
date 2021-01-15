@@ -12,6 +12,7 @@ import io.ktor.routing.*
 @Location("/getGroupSchedule")
 class GroupSchedule
 
+@Deprecated("Deprecated in MpeiX v1.4 and higher")
 fun Route.getGroupSchedule() = location<GroupSchedule> {
     post {
         val request = call.receive<GetScheduleByGroupRequest>()

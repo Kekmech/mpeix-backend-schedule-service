@@ -14,6 +14,7 @@ import io.ktor.routing.*
 @Location("/getSession")
 class Session
 
+@Deprecated("Deprecated in MpeiX v1.4 and higher")
 fun Route.getSession() = location<Session> {
     post {
         val request = call.receive<GetSessionRequest>()

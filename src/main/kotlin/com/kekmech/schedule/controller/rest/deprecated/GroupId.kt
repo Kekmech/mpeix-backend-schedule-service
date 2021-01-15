@@ -14,6 +14,7 @@ import io.ktor.routing.*
 @Location("/getGroupId")
 class GroupId
 
+@Deprecated("Deprecated in MpeiX v1.4 and higher")
 fun Route.getGroupId() = location<GroupId> {
     post {
         val groupNumber = call.receive<GetGroupIdRequest>().groupNumber.checkIsValidGroupNumber()
