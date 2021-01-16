@@ -8,6 +8,7 @@ import io.ktor.config.*
 import io.ktor.util.*
 import org.koin.dsl.bind
 
+@Suppress("EXPERIMENTAL_API_USAGE")
 class ConfigurationModule(env: ApplicationEnvironment) : ModuleProvider({
     single {
         env.config

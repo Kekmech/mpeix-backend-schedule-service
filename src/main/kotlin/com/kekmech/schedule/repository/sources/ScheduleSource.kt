@@ -7,6 +7,7 @@ import com.kekmech.schedule.configuration.CacheConfiguration
 import com.kekmech.schedule.dto.Key
 import com.kekmech.schedule.dto.MpeiScheduleResponse
 import com.kekmech.schedule.dto.Schedule
+import com.kekmech.schedule.dto.ScheduleType
 import com.kekmech.schedule.formatToMpei
 import com.kekmech.schedule.repository.DataSource
 import com.kekmech.schedule.repository.ScheduleMapper
@@ -55,7 +56,7 @@ class ScheduleSource(
 
     override fun getFromRemote(k: Key): Schedule? = runBlocking {
         log.debug("Get schedule from remote: type=$type; key=$k")
-        val id = idSource.get(k.groupName)!!
+        val id = idSource.get(k.name)!!
         val start = k.weekStart
         val finish = k.weekStart.plusDays(6)
         client
@@ -63,7 +64,7 @@ class ScheduleSource(
                 parameter("start", start.formatToMpei())
                 parameter("finish", finish.formatToMpei())
             }
-            .let { ScheduleMapper.map(k,id, it) }
+            .let { ScheduleMapper.map(k,id, it, ScheduleType.valueOf(type.toUpperCase())) }
     }
 
     override fun putToPersistent(k: Key, v: Schedule) = executor.execute {

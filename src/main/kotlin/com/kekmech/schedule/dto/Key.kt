@@ -5,8 +5,8 @@ import java.io.Serializable
 import java.time.LocalDate
 
 data class Key(
-    val groupName: String,
+    val name: String,
     val weekStart: LocalDate
 ) : Serializable {
-    fun serialize(): String = "${groupName}_${weekStart.weekOfYear()}"
+    fun serialize(): String = "${name}_${weekStart.weekOfYear()}"
 }

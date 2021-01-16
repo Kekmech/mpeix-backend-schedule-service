@@ -3,6 +3,7 @@ package com.kekmech.schedule.di
 import com.google.gson.Gson
 import com.kekmech.schedule.di.factories.GsonFactory
 import com.kekmech.schedule.di.factories.HttpClientFactory
+import com.kekmech.schedule.dto.ScheduleType
 import com.kekmech.schedule.helpers.ModuleProvider
 import com.kekmech.schedule.repository.ScheduleRepository
 import com.kekmech.schedule.repository.sources.*
@@ -14,8 +15,8 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import java.util.*
 
-private const val DATA_TYPE_GROUP = "group"
-private const val DATA_TYPE_PERSON = "person"
+private val DATA_TYPE_GROUP = ScheduleType.GROUP.raw
+private val DATA_TYPE_PERSON = ScheduleType.PERSON.raw
 
 private val GROUP_ID_QUALIFIER = named("${DATA_TYPE_GROUP}_id")
 private val GROUP_SCHEDULE_QUALIFIER = named("${DATA_TYPE_GROUP}_schedule")

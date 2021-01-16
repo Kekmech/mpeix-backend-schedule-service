@@ -10,7 +10,7 @@ import java.time.LocalTime
 
 object ScheduleMapper {
 
-    fun map(key: Key, groupId: String, input: MpeiScheduleResponse): Schedule? = try {
+    fun map(key: Key, id: String, input: MpeiScheduleResponse, scheduleType: ScheduleType): Schedule? = try {
         val mapOfDays = mutableMapOf<LocalDate, MutableList<Classes>>()
         input.forEach {
             val date = it.date.formatFromMpei()
@@ -23,7 +23,7 @@ object ScheduleMapper {
                     rawType = it.kindOfWork.toUpperCase(),
                     place = it.auditorium,
                     groups = it.stream ?: it.group ?: "",
-                    person = it.lecturer,
+                    person = it.lecturer.checkIsNotEmpty(),
                     time = time,
                     number = getNumberByTime(time)
                 )
@@ -39,8 +39,11 @@ object ScheduleMapper {
             )
         }
         Schedule(
-            groupNumber = key.groupName,
-            groupId = groupId,
+            groupNumber = key.name, // deprecated since mpeix 1.4.0
+            groupId = id, // deprecated since mpeix 1.4.0
+            name = key.name,
+            id = id,
+            type = scheduleType,
             weeks = listOf(
                 Week(
                     weekOfYear = key.weekStart.weekOfYear(),
@@ -82,4 +85,6 @@ object ScheduleMapper {
         time.start == LocalTime.parse("20:30") -> 7
         else -> -1
     }
+
+    private fun String.checkIsNotEmpty(): String = if (this.contains("Вакансия")) "" else this
 }

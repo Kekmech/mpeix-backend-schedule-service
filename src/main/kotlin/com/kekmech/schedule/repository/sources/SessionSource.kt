@@ -34,7 +34,7 @@ class SessionSource(
             LocalDate.of(2021, Month.JANUARY, 25)
         )
         val sessionTimeSchedules = sessionDays.mapNotNull { firstDayOfWeek ->
-            scheduleSource.get(Key(groupName = k, weekStart = firstDayOfWeek))
+            scheduleSource.get(Key(name = k, weekStart = firstDayOfWeek))
         }
         return SessionMapper.map(sessionTimeSchedules).filter { it.type != SessionItemType.UNDEFINED }
     }

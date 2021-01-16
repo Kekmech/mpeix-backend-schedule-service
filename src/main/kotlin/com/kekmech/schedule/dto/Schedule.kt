@@ -5,8 +5,14 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 data class Schedule(
+    @Deprecated("Used only ownerName and ownerId since version 1.4.0")
     val groupNumber: String = "",
+    @Deprecated("Used only ownerName and ownerId since version 1.4.0")
     val groupId: String = "",
+
+    val name: String,
+    val id: String,
+    val type: ScheduleType,
     val weeks: List<Week> = emptyList()
 ) : Serializable
 
@@ -40,3 +46,5 @@ data class Time(
 ) : Serializable
 
 enum class ClassesType : Serializable { UNDEFINED, LECTURE, PRACTICE, LAB, COURSE }
+
+enum class ScheduleType(val raw: String) : Serializable { GROUP("group"), PERSON("person") }
