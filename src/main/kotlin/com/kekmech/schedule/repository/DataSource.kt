@@ -30,4 +30,6 @@ abstract class DataSource<K : Any, V : Any>(
     open fun getFromPersistent(k: K): V? = null
 
     open fun putToPersistent(k: K, v: V) = Unit
+
+    open fun clearCache(k: K) = Unit
 }

@@ -19,24 +19,6 @@ import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-//class GroupScheduleSource(
-//    cacheConfiguration: CacheConfiguration,
-//    client: HttpClient,
-//    log: InternalLogger,
-//    gson: Gson,
-//    idSource: DataSource<String, String>,
-//    type: String
-//) : ScheduleSource(cacheConfiguration, client, log, gson, idSource, type)
-//
-//class PersonScheduleSource(
-//    cacheConfiguration: CacheConfiguration,
-//    client: HttpClient,
-//    log: InternalLogger,
-//    gson: Gson,
-//    idSource: DataSource<String, String>,
-//    type: String
-//) : ScheduleSource(cacheConfiguration, client, log, gson, idSource, type)
-
 class ScheduleSource(
     private val cacheConfiguration: CacheConfiguration,
     private val client: HttpClient,
@@ -83,5 +65,10 @@ class ScheduleSource(
                 return@submit null
             }
         }.get()
+    }
+
+    override fun clearCache(k: Key) = executor.execute {
+        cache.invalidate(k)
+        File(cacheConfiguration.dir, k.serialize()).delete()
     }
 }

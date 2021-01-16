@@ -31,4 +31,9 @@ class ScheduleRepository(
 
     fun getPersonSession(personName: String): List<SessionItem> =
         personSessionSource.get(personName) ?: throw ExternalException("Can't get session from remote")
+
+    fun clearCache(groupOrPersonName: String, weekStart: LocalDate) {
+        groupScheduleSource.clearCache(Key(groupOrPersonName, weekStart))
+        personScheduleSource.clearCache(Key(groupOrPersonName, weekStart))
+    }
 }

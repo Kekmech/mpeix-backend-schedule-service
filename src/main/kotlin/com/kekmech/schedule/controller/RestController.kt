@@ -21,6 +21,7 @@ fun Application.restModule() {
         getSession()
         // System
         healthCheck()
+        clearCache()
         // V1
         getGroupScheduleV1()
         getGroupSessionV1()
