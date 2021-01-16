@@ -11,15 +11,13 @@ import com.kekmech.schedule.repository.SessionMapper
 import io.netty.util.internal.logging.InternalLogger
 import java.time.LocalDate
 import java.time.Month
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class SessionSource(
-    private val groupScheduleSource: GroupScheduleSource,
+    private val scheduleSource: ScheduleSource,
     private val cacheConfiguration: CacheConfiguration,
     private val log: InternalLogger
 ) : DataSource<String, List<SessionItem>>() {
-    private val executor = Executors.newSingleThreadExecutor()
 
     override val cache: Cache<String, List<SessionItem>> = Caffeine.newBuilder()
         .maximumSize(cacheConfiguration.limit)
@@ -36,10 +34,8 @@ class SessionSource(
             LocalDate.of(2021, Month.JANUARY, 25)
         )
         val sessionTimeSchedules = sessionDays.mapNotNull { firstDayOfWeek ->
-            groupScheduleSource.get(Key(groupName = k, weekStart = firstDayOfWeek))
+            scheduleSource.get(Key(groupName = k, weekStart = firstDayOfWeek))
         }
         return SessionMapper.map(sessionTimeSchedules).filter { it.type != SessionItemType.UNDEFINED }
     }
-
-    data class SessionItemsWrapper(val items: List<SessionItem>)
 }

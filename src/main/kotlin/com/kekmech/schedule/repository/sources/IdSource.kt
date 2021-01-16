@@ -10,9 +10,10 @@ import io.ktor.client.request.*
 import io.netty.util.internal.logging.InternalLogger
 import kotlinx.coroutines.runBlocking
 
-class GroupIdSource(
+class IdSource(
     private val client: HttpClient,
-    private val log: InternalLogger
+    private val log: InternalLogger,
+    private val type: String
 ) : DataSource<String, String>() {
 
     override val cache: Cache<String, String> = Caffeine.newBuilder()
@@ -20,14 +21,14 @@ class GroupIdSource(
         .build()
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun getFromRemote(groupName: String): String? = runBlocking {
-        log.debug("Get group id from remote: $groupName")
+    override fun getFromRemote(name: String): String? = runBlocking {
+        log.debug("Get $type id from remote: $name")
         val firstSearchResult = client
             .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
-                parameter("term", groupName)
-                parameter("type", "group")
+                parameter("term", name)
+                parameter("type", type)
             }
-            .firstOrNull() ?: throw ExternalException("Can't find group with name $groupName")
+            .firstOrNull() ?: throw ExternalException("Can't find $type with name $name")
         firstSearchResult.id
     }
 }

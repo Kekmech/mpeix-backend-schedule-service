@@ -18,12 +18,31 @@ import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class GroupScheduleSource(
+//class GroupScheduleSource(
+//    cacheConfiguration: CacheConfiguration,
+//    client: HttpClient,
+//    log: InternalLogger,
+//    gson: Gson,
+//    idSource: DataSource<String, String>,
+//    type: String
+//) : ScheduleSource(cacheConfiguration, client, log, gson, idSource, type)
+//
+//class PersonScheduleSource(
+//    cacheConfiguration: CacheConfiguration,
+//    client: HttpClient,
+//    log: InternalLogger,
+//    gson: Gson,
+//    idSource: DataSource<String, String>,
+//    type: String
+//) : ScheduleSource(cacheConfiguration, client, log, gson, idSource, type)
+
+class ScheduleSource(
     private val cacheConfiguration: CacheConfiguration,
     private val client: HttpClient,
     private val log: InternalLogger,
     private val gson: Gson,
-    private val groupIdSource: DataSource<String, String>
+    private val idSource: IdSource,
+    private val type: String
 ) : DataSource<Key, Schedule>(
     enablePersistentCache = true
 ) {
@@ -35,20 +54,20 @@ class GroupScheduleSource(
         .build()
 
     override fun getFromRemote(k: Key): Schedule? = runBlocking {
-        log.debug("Get schedule from remote: key=$k")
-        val groupId = groupIdSource.get(k.groupName)!!
+        log.debug("Get schedule from remote: type=$type; key=$k")
+        val id = idSource.get(k.groupName)!!
         val start = k.weekStart
         val finish = k.weekStart.plusDays(6)
         client
-            .get<MpeiScheduleResponse>("http://ts.mpei.ru/api/schedule/group/$groupId") {
+            .get<MpeiScheduleResponse>("http://ts.mpei.ru/api/schedule/$type/$id") {
                 parameter("start", start.formatToMpei())
                 parameter("finish", finish.formatToMpei())
             }
-            .let { ScheduleMapper.map(k, groupId, it) }
+            .let { ScheduleMapper.map(k,id, it) }
     }
 
     override fun putToPersistent(k: Key, v: Schedule) = executor.execute {
-        log.debug("Put schedule to persistent: key=$k")
+        log.debug("Put schedule to persistent: type=$type; key=$k")
         File(cacheConfiguration.dir, k.serialize())
             .writeText(gson.toJson(v))
     }
@@ -57,7 +76,7 @@ class GroupScheduleSource(
         return executor.submit<Schedule?> {
             val file = File(cacheConfiguration.dir, k.serialize())
             if (file.exists()) {
-                log.debug("Get schedule from persistent: key=$k")
+                log.debug("Get schedule from persistent: type=$type; key=$k")
                 return@submit gson.fromJson(file.readText(), Schedule::class.java)
             } else {
                 return@submit null

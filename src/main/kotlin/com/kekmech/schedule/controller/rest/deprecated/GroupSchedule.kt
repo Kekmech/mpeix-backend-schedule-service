@@ -24,7 +24,7 @@ fun Route.getGroupSchedule() = location<GroupSchedule> {
                 moscowLocalDate().plusWeeks(it.toLong()).atStartOfWeek()
             }
         }
-        val schedule = scheduleRepository.getSchedule(groupNumber, requestedWeekStart)
+        val schedule = scheduleRepository.getGroupSchedule(groupNumber, requestedWeekStart)
         call.respond(HttpStatusCode.OK, schedule)
     }
 }

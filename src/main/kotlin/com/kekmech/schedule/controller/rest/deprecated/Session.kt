@@ -19,6 +19,6 @@ fun Route.getSession() = location<Session> {
     post {
         val request = call.receive<GetSessionRequest>()
         val groupNumber = request.groupNumber.checkIsValidGroupNumber()
-        call.respond(HttpStatusCode.OK, GetSessionResponse(scheduleRepository.getSession(groupNumber)))
+        call.respond(HttpStatusCode.OK, GetSessionResponse(scheduleRepository.getGroupSession(groupNumber)))
     }
 }

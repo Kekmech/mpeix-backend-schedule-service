@@ -31,6 +31,7 @@ val scheduleRepository by inject(ScheduleRepository::class.java)
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
+@Suppress("UNUSED")
 fun Application.main() {
     install(DefaultHeaders)
     install(Compression)

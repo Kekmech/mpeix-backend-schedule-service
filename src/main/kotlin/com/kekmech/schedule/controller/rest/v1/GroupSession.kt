@@ -10,11 +10,11 @@ import io.ktor.response.*
 import io.ktor.routing.*
 
 @Location("/v1/group/{groupNumber}/session")
-class Session(val groupNumber: String)
+class GroupSession(val groupNumber: String)
 
-fun Route.getSessionV1() {
-    get<Session> { request ->
+fun Route.getGroupSessionV1() {
+    get<GroupSession> { request ->
         val groupNumber = request.groupNumber.checkIsValidGroupNumber()
-        call.respond(HttpStatusCode.OK, GetSessionResponse(scheduleRepository.getSession(groupNumber)))
+        call.respond(HttpStatusCode.OK, GetSessionResponse(scheduleRepository.getGroupSession(groupNumber)))
     }
 }
