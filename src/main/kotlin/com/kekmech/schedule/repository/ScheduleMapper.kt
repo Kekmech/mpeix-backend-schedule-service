@@ -62,6 +62,7 @@ object ScheduleMapper {
         type.contains("ЛАБ") -> ClassesType.LAB
         type.contains("ПРАК") -> ClassesType.PRACTICE
         type.contains("КУРС") -> ClassesType.COURSE
+        type.contains("КП") -> ClassesType.COURSE
         else -> ClassesType.UNDEFINED
     }
 
