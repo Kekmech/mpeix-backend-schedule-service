@@ -23,7 +23,7 @@ class AppModule : ModuleProvider({
 
     single { GroupIdSource(get(), get()) } bind GroupIdSource::class
     single { GroupScheduleSource(get(), get(), get(), get(), get<GroupIdSource>()) } bind GroupScheduleSource::class
-    single { SessionSource(get(), get(), get(), get()) } bind SessionSource::class
+    single { SessionSource(get(), get(), get()) } bind SessionSource::class
     single {
         ScheduleRepository(get<GroupIdSource>(), get<GroupScheduleSource>(), get<SessionSource>())
     } bind ScheduleRepository::class
