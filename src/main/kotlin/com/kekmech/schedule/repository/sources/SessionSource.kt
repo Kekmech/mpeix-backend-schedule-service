@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.kekmech.schedule.configuration.CacheConfiguration
 import com.kekmech.schedule.dto.Key
 import com.kekmech.schedule.dto.SessionItem
+import com.kekmech.schedule.dto.SessionItemType
 import com.kekmech.schedule.repository.DataSource
 import com.kekmech.schedule.repository.SessionMapper
 import io.netty.util.internal.logging.InternalLogger
@@ -37,7 +38,7 @@ class SessionSource(
         val sessionTimeSchedules = sessionDays.mapNotNull { firstDayOfWeek ->
             groupScheduleSource.get(Key(groupName = k, weekStart = firstDayOfWeek))
         }
-        return SessionMapper.map(sessionTimeSchedules)
+        return SessionMapper.map(sessionTimeSchedules).filter { it.type != SessionItemType.UNDEFINED }
     }
 
     data class SessionItemsWrapper(val items: List<SessionItem>)

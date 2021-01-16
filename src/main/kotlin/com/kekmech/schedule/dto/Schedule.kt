@@ -31,7 +31,6 @@ data class Classes(
     val person: String = "",
     val time: Time = Time(),
     val number: Int,
-    @Transient
     val rawType: String = ""
 ) : Serializable
 
