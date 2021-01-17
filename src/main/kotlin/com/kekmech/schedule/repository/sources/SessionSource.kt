@@ -7,7 +7,7 @@ import com.kekmech.schedule.dto.Key
 import com.kekmech.schedule.dto.SessionItem
 import com.kekmech.schedule.dto.SessionItemType
 import com.kekmech.schedule.repository.DataSource
-import com.kekmech.schedule.repository.SessionMapper
+import com.kekmech.schedule.repository.mappers.SessionMapper
 import io.netty.util.internal.logging.InternalLogger
 import java.time.LocalDate
 import java.time.Month

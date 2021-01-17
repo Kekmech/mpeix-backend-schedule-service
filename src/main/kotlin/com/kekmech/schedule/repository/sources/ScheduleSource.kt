@@ -10,7 +10,7 @@ import com.kekmech.schedule.dto.Schedule
 import com.kekmech.schedule.dto.ScheduleType
 import com.kekmech.schedule.formatToMpei
 import com.kekmech.schedule.repository.DataSource
-import com.kekmech.schedule.repository.ScheduleMapper
+import com.kekmech.schedule.repository.mappers.ScheduleMapper
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.netty.util.internal.logging.InternalLogger

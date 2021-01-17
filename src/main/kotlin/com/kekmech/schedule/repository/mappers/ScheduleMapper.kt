@@ -1,4 +1,4 @@
-package com.kekmech.schedule.repository
+package com.kekmech.schedule.repository.mappers
 
 import com.kekmech.schedule.LogicException
 import com.kekmech.schedule.dto.*

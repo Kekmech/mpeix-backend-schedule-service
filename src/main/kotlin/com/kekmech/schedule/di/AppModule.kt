@@ -49,7 +49,9 @@ class AppModule : ModuleProvider({
             groupScheduleSource = get(GROUP_SCHEDULE_QUALIFIER),
             personScheduleSource = get(PERSON_SCHEDULE_QUALIFIER),
             groupSessionSource = get(GROUP_SESSION_QUALIFIER),
-            personSessionSource = get(PERSON_SESSION_QUALIFIER)
+            personSessionSource = get(PERSON_SESSION_QUALIFIER),
+            groupSearchSource = SearchSource(get(), get(), get(), DATA_TYPE_GROUP),
+            personSearchSource = SearchSource(get(), get(), get(), DATA_TYPE_PERSON)
         )
     } bind ScheduleRepository::class
 })

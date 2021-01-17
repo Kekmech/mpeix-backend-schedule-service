@@ -1,11 +1,10 @@
 package com.kekmech.schedule.repository
 
 import com.kekmech.schedule.ExternalException
-import com.kekmech.schedule.dto.Key
-import com.kekmech.schedule.dto.Schedule
-import com.kekmech.schedule.dto.SessionItem
+import com.kekmech.schedule.dto.*
 import com.kekmech.schedule.repository.sources.IdSource
 import com.kekmech.schedule.repository.sources.ScheduleSource
+import com.kekmech.schedule.repository.sources.SearchSource
 import com.kekmech.schedule.repository.sources.SessionSource
 import java.time.LocalDate
 
@@ -14,7 +13,9 @@ class ScheduleRepository(
     private val groupScheduleSource: ScheduleSource,
     private val personScheduleSource: ScheduleSource,
     private val groupSessionSource: SessionSource,
-    private val personSessionSource: SessionSource
+    private val personSessionSource: SessionSource,
+    private val groupSearchSource: SearchSource,
+    private val personSearchSource: SearchSource
 ) {
 
     fun getGroupId(groupNumber: String): String =
@@ -31,6 +32,16 @@ class ScheduleRepository(
 
     fun getPersonSession(personName: String): List<SessionItem> =
         personSessionSource.get(personName) ?: throw ExternalException("Can't get session from remote")
+
+    fun getSearchResults(query: String, type: String?): List<SearchResult> = when(type) {
+        ScheduleType.GROUP.raw -> groupSearchSource.get(query).orEmpty()
+        ScheduleType.PERSON.raw -> personSearchSource.get(query).orEmpty()
+        null -> mutableListOf<SearchResult>().apply {
+            addAll(groupSearchSource.get(query).orEmpty())
+            addAll(personSearchSource.get(query).orEmpty())
+        }
+        else -> emptyList()
+    }
 
     fun clearCache(groupOrPersonName: String, weekStart: LocalDate) {
         groupScheduleSource.clearCache(Key(groupOrPersonName, weekStart))
