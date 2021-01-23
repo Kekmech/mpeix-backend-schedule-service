@@ -16,6 +16,7 @@ object SessionMapper {
                         type = classes.rawType.toSessionItemType(),
                         place = classes.place,
                         person = classes.person,
+                        groups = classes.groups,
                         date = day.date,
                         time = classes.time
                     )
