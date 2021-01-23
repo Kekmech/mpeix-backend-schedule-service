@@ -1,6 +1,5 @@
 package com.kekmech.schedule
 
-import com.kekmech.schedule.controller.restModule
 import com.kekmech.schedule.di.AppModule
 import com.kekmech.schedule.di.ConfigurationModule
 import com.kekmech.schedule.di.PostgresModule
@@ -21,11 +20,14 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.koin.java.KoinJavaComponent.inject
 import org.koin.ktor.ext.Koin
 import org.slf4j.event.Level
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.text.DateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
+
 
 val scheduleRepository by inject(ScheduleRepository::class.java)
 
@@ -58,7 +60,10 @@ fun Application.main() {
             call.respond(HttpStatusCode.BadRequest, cause.message.orEmpty())
         }
         exception<Exception> { cause ->
-            call.respond(HttpStatusCode.InternalServerError, cause.message.orEmpty())
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            cause.printStackTrace(pw)
+            call.respond(HttpStatusCode.InternalServerError, cause.message + "\n" + sw.toString())
         }
     }
     install(Koin) {

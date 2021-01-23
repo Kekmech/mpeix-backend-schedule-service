@@ -7,6 +7,9 @@ import com.kekmech.schedule.dto.ScheduleType
 import com.kekmech.schedule.helpers.ModuleProvider
 import com.kekmech.schedule.repository.ScheduleRepository
 import com.kekmech.schedule.repository.sources.*
+import com.kekmech.schedule.repository.sources.search.DatabaseSearchResultsSource
+import com.kekmech.schedule.repository.sources.search.MergedSearchResultsSource
+import com.kekmech.schedule.repository.sources.search.MpeiSearchResultsSource
 import io.ktor.client.*
 import io.netty.util.internal.logging.InternalLogger
 import io.netty.util.internal.logging.Slf4JLoggerFactory
@@ -43,6 +46,8 @@ class AppModule : ModuleProvider({
     single(PERSON_SESSION_QUALIFIER) { SessionSource(get(PERSON_SCHEDULE_QUALIFIER), get(), get()) }
 
 
+    single { DatabaseSearchResultsSource(get()) }
+    single { MpeiSearchResultsSource(get(), get(), get()) }
     single {
         ScheduleRepository(
             groupIdSource = get(GROUP_ID_QUALIFIER),
@@ -50,8 +55,7 @@ class AppModule : ModuleProvider({
             personScheduleSource = get(PERSON_SCHEDULE_QUALIFIER),
             groupSessionSource = get(GROUP_SESSION_QUALIFIER),
             personSessionSource = get(PERSON_SESSION_QUALIFIER),
-            groupSearchSource = SearchSource(get(), get(), get(), DATA_TYPE_GROUP),
-            personSearchSource = SearchSource(get(), get(), get(), DATA_TYPE_PERSON)
+            mergedSearchSource = MergedSearchResultsSource(get(), get(), get())
         )
     } bind ScheduleRepository::class
 })
