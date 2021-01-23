@@ -51,13 +51,19 @@ class ScheduleSource(
 
     override fun putToPersistent(k: Key, v: Schedule) = executor.execute {
         log.debug("Put schedule to persistent: type=$type; key=$k")
-        File(cacheConfiguration.dir, k.serialize())
+        val scheduleYearDir = File(cacheConfiguration.dir, k.weekStart.year.toString())
+        // TODO: создавать папки пока ручками, т.к. иначе это дырка, позволяющая мусорить у нас на сервере
+        // if (!scheduleYearDir.exists()) scheduleYearDir.mkdirs()
+        File(scheduleYearDir, k.serialize())
             .writeText(gson.toJson(v))
     }
 
     override fun getFromPersistent(k: Key): Schedule? {
         return executor.submit<Schedule?> {
-            val file = File(cacheConfiguration.dir, k.serialize())
+            val scheduleYearDir = File(cacheConfiguration.dir, k.weekStart.year.toString())
+            // TODO: создавать папки пока ручками, т.к. иначе это дырка, позволяющая мусорить у нас на сервере
+            // if (!scheduleYearDir.exists()) scheduleYearDir.mkdirs()
+            val file = File(scheduleYearDir, k.serialize())
             if (file.exists()) {
                 log.debug("Get schedule from persistent: type=$type; key=$k")
                 return@submit gson.fromJson(file.readText(), Schedule::class.java)
