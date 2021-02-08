@@ -9,6 +9,7 @@ import com.kekmech.schedule.dto.MpeiScheduleResponse
 import com.kekmech.schedule.dto.Schedule
 import com.kekmech.schedule.dto.ScheduleType
 import com.kekmech.schedule.formatToMpei
+import com.kekmech.schedule.moscowLocalDate
 import com.kekmech.schedule.repository.DataSource
 import com.kekmech.schedule.repository.mappers.ScheduleMapper
 import io.ktor.client.*
@@ -29,6 +30,11 @@ class ScheduleSource(
 ) : DataSource<Key, Schedule>(
     enablePersistentCache = true
 ) {
+
+    init {
+        createCacheDirs()
+    }
+
     private val executor = Executors.newSingleThreadExecutor()
 
     override val cache: Cache<Key, Schedule> = Caffeine.newBuilder()
@@ -52,8 +58,6 @@ class ScheduleSource(
     override fun putToPersistent(k: Key, v: Schedule) = executor.execute {
         log.debug("Put schedule to persistent: type=$type; key=$k")
         val scheduleYearDir = File(cacheConfiguration.dir, k.weekStart.year.toString())
-        // TODO: создавать папки пока ручками, т.к. иначе это дырка, позволяющая мусорить у нас на сервере
-        // if (!scheduleYearDir.exists()) scheduleYearDir.mkdirs()
         File(scheduleYearDir, k.serialize())
             .writeText(gson.toJson(v))
     }
@@ -61,8 +65,6 @@ class ScheduleSource(
     override fun getFromPersistent(k: Key): Schedule? {
         return executor.submit<Schedule?> {
             val scheduleYearDir = File(cacheConfiguration.dir, k.weekStart.year.toString())
-            // TODO: создавать папки пока ручками, т.к. иначе это дырка, позволяющая мусорить у нас на сервере
-            // if (!scheduleYearDir.exists()) scheduleYearDir.mkdirs()
             val file = File(scheduleYearDir, k.serialize())
             if (file.exists()) {
                 log.debug("Get schedule from persistent: type=$type; key=$k")
@@ -76,5 +78,14 @@ class ScheduleSource(
     override fun clearCache(k: Key) = executor.execute {
         cache.invalidate(k)
         File(cacheConfiguration.dir, k.serialize()).delete()
+    }
+
+    private fun createCacheDirs() {
+        val now = moscowLocalDate()
+        val startYear = now.minusMonths(6L).year
+        val endYear = now.plusMonths(6L).year
+        for (year in startYear..endYear) {
+            File(cacheConfiguration.dir, year.toString()).mkdirs()
+        }
     }
 }
