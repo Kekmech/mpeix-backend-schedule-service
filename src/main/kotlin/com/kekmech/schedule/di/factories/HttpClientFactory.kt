@@ -8,6 +8,7 @@ import com.kekmech.schedule.okhttp.UnzippingInterceptor
 import com.kekmech.schedule.okhttp.trustAllSslCertificates
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
+import io.ktor.client.features.HttpTimeout
 import io.ktor.client.features.json.*
 import okhttp3.logging.HttpLoggingInterceptor
 import java.text.DateFormat
@@ -24,6 +25,9 @@ object HttpClientFactory {
                 registerTypeAdapter(LocalDate::class.java, LocalDateSerializer())
                 registerTypeAdapter(LocalTime::class.java, LocalTimeSerializer())
             }
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 3000L
         }
         engine {
             addInterceptor(UnzippingInterceptor())

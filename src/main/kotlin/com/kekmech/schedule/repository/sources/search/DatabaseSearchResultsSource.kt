@@ -10,10 +10,10 @@ class DatabaseSearchResultsSource(private val dsl: DSLContext) {
 
     private fun createTableIfNeeded() {
         dsl.fetch("""
-            create table if not exist $SEARCH_RESULTS_TABLE_NAME (
+            create table if not exists $SEARCH_RESULTS_TABLE_NAME (
                 id serial,
                 $COLUMN_REMOTE_ID varchar not null,
-                $COLUMN_NAME varchar not null,
+                $COLUMN_NAME varchar not null UNIQUE,
                 $COLUMN_DESCRIPTION varchar not null,
                 $COLUMN_TYPE varchar not null
             );
@@ -27,11 +27,11 @@ class DatabaseSearchResultsSource(private val dsl: DSLContext) {
             .replace("[^а-яА-Яa-zA-Z0-9\\-\\s]".toRegex(), "")
         val typeCondition = if (type != null) "and $COLUMN_TYPE = ${type.toUpperCase()}" else ""
         val records = dsl.fetch("""
-            select ($COLUMN_REMOTE_ID, $COLUMN_NAME, $COLUMN_DESCRIPTION, $COLUMN_TYPE) from $SEARCH_RESULTS_TABLE_NAME
+            select * from $SEARCH_RESULTS_TABLE_NAME
             where $COLUMN_NAME like '%$clearQuery%' $typeCondition 
             limit $RESULTS_LIMIT ;
         """.trimIndent())
-        val results = records.map { record ->
+        return records.map { record ->
             SearchResult(
                 name = record[COLUMN_NAME].toString(),
                 description = record[COLUMN_DESCRIPTION].toString(),
@@ -39,12 +39,11 @@ class DatabaseSearchResultsSource(private val dsl: DSLContext) {
                 id = record[COLUMN_REMOTE_ID].toString()
             )
         }
-        return results
     }
 
     fun put(results: List<SearchResult>) {
         val serializedValues = results.joinToString {
-            "(${it.id}, ${it.name}, ${it.description}, ${it.type})"
+            "('${it.id}', '${it.name}', '${it.description}', '${it.type}')"
         }
         dsl.fetch("""
             insert into $SEARCH_RESULTS_TABLE_NAME ($COLUMN_REMOTE_ID, $COLUMN_NAME, $COLUMN_DESCRIPTION, $COLUMN_TYPE)

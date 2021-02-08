@@ -13,13 +13,15 @@
     </extension>
     <option name="VM_PARAMETERS" value="-Dlogback.configurationFile=.dev/logback-dev.xml" />
     <option name="PROGRAM_PARAMETERS" value="-config=.dev/application-dev.conf " />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="C:\Program Files\Java\jdk-11" />
     <option name="PASS_PARENT_ENVS" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.kekmech.schedule.MainKt" />
     <option name="WORKING_DIRECTORY" value="" />
     <envs>
       <env name="CACHE_CLEAR_SECRET" value="1234" />
+      <env name="DB_PASSWORD" value="tensorflow_sucks" />
+      <env name="DB_USER" value="jdbc:postgresql://localhost:5432/postgres" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />

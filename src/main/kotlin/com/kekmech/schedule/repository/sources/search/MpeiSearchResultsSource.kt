@@ -8,7 +8,6 @@ import com.kekmech.schedule.dto.SearchResult
 import com.kekmech.schedule.repository.DataSource
 import com.kekmech.schedule.repository.mappers.SearchResultsMapper
 import io.ktor.client.*
-import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.netty.util.internal.logging.InternalLogger
 import kotlinx.coroutines.runBlocking
@@ -38,7 +37,6 @@ class MpeiSearchResultsSource(
             .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
                 parameter("term", name)
                 parameter("type", type)
-                timeout { requestTimeoutMillis = 3000L }
             }
         return@runBlocking SearchResultsMapper.map(searchResults)
     }

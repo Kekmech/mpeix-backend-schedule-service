@@ -5,9 +5,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.kekmech.schedule.configuration.CacheConfiguration
 import com.kekmech.schedule.dto.SearchResult
 import com.kekmech.schedule.repository.DataSource
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.netty.util.internal.logging.InternalLogger
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 
@@ -24,7 +21,12 @@ class MergedSearchResultsSource(
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun getFromRemote(name: String): List<SearchResult>? = runBlocking {
-        val mpeiResults = mpeiSource.get(name) ?: emptyList()
+        val mpeiResults = try {
+            mpeiSource.get(name)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } ?: emptyList()
         if (mpeiResults.isNotEmpty()) dbSource.put(mpeiResults)
         return@runBlocking dbSource.get(name)
             .sortedBy {
