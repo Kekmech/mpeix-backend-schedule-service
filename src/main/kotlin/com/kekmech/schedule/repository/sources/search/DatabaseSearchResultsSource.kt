@@ -28,7 +28,7 @@ class DatabaseSearchResultsSource(private val dsl: DSLContext) {
         val typeCondition = if (type != null) "and $COLUMN_TYPE = ${type.toUpperCase()}" else ""
         val records = dsl.fetch("""
             select * from $SEARCH_RESULTS_TABLE_NAME
-            where $COLUMN_NAME like '%$clearQuery%' $typeCondition 
+            where UPPER($COLUMN_NAME) like UPPER('%$clearQuery%') $typeCondition 
             limit $RESULTS_LIMIT ;
         """.trimIndent())
         return records.map { record ->
