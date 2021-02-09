@@ -15,15 +15,15 @@ fun Application.restModule() {
     routing {
         getGroupId()
         getGroupSchedule()
-        getSession()
+        //getSession()
         // System
         healthCheck()
         clearCache()
         // V1
         getGroupScheduleV1()
-        getGroupSessionV1()
+        //getGroupSessionV1()
         getPersonScheduleV1()
-        getPersonSessionV1()
+        //getPersonSessionV1()
         searchV1()
     }
 }
