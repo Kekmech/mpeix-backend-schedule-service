@@ -32,7 +32,7 @@ fun LocalDate.weekOfSemester(defaultLocale: Locale = locale): Int {
         (month in Month.FEBRUARY..Month.JUNE) -> { // spring semester
             val firstOfFebruary = this
                 .withMonth(Month.FEBRUARY.value)
-                .withDayOfMonth(if (year == 2021) 8 else 1)
+                .withDayOfMonth(if (year == 2021) 15 else 1)
             // if 1th of Febryary is Monday, return it's week number, else return next week number
             if (firstOfFebruary.dayOfWeek == DayOfWeek.MONDAY) firstOfFebruary.weekOfYear(defaultLocale)
             else firstOfFebruary.weekOfYear(defaultLocale) + 1
@@ -48,7 +48,7 @@ fun LocalDate.weekOfSemester(defaultLocale: Locale = locale): Int {
         }
     }
     return ((weekOfYear(defaultLocale) - weekOfYear) + 1).let {
-        if (it in 1..18) it else -1
+        if (it in 0..17) it else -1
     }
 }
 

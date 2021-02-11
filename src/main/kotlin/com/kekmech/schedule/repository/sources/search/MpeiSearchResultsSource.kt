@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 
 private val GROUP_NUMBER_PATTERN = "[а-яА-Я]+-[а-яА-Я0-9]+-[0-9]+".toRegex()
+private val PERSON_NAME_PATTERN = "[а-яА-Я]+\\s[а-яА-Я]+.*".toRegex()
 
 class MpeiSearchResultsSource(
     private val client: HttpClient,
@@ -30,14 +31,29 @@ class MpeiSearchResultsSource(
     override fun getFromRemote(name: String): List<SearchResult>? = runBlocking {
         val type = when {
             name.matches(GROUP_NUMBER_PATTERN) -> "group"
-            else -> "person"
+            name.matches(PERSON_NAME_PATTERN) -> "person"
+            else -> null
         }
         log.debug("Get $type search result from remote: $name")
-        val searchResults = client
-            .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
-                parameter("term", name)
-                parameter("type", type)
-            }
+        val searchResults = if (type != null) {
+            client
+                .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
+                    parameter("term", name)
+                    parameter("type", type)
+                }
+        } else {
+            val groups = client
+                .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
+                    parameter("term", name)
+                    parameter("type", "group")
+                }
+            val persons = client
+                .get<MpeiSearchResponse>("http://ts.mpei.ru/api/search") {
+                    parameter("term", name)
+                    parameter("type", "person")
+                }
+            groups + persons
+        }
         return@runBlocking SearchResultsMapper.map(searchResults)
     }
 }
