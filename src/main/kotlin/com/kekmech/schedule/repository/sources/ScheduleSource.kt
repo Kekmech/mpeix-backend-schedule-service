@@ -69,6 +69,7 @@ class ScheduleSource(
             if (file.exists()) {
                 log.debug("Get schedule from persistent: type=$type; key=$k")
                 return@submit gson.fromJson(file.readText(), Schedule::class.java)
+                        .supportScheduleV0()
             } else {
                 return@submit null
             }
@@ -88,4 +89,9 @@ class ScheduleSource(
             File(cacheConfiguration.dir, year.toString()).mkdirs()
         }
     }
+
+    private fun Schedule.supportScheduleV0() = copy(
+        name = groupNumber,
+        id = groupId
+    )
 }
