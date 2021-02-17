@@ -10,7 +10,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import java.util.*
 
-@Location("/clearCache/{selector}/{secretKey}")
+@Location("/system/clearCache/{selector}/{secretKey}")
 class ClearCache(val selector: String, val secretKey: String)
 
 fun Route.clearCache() {

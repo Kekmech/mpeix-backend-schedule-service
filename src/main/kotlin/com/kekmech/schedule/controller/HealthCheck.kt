@@ -6,7 +6,7 @@ import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-@Location("/health")
+@Location("/system/health")
 class HealthCheck
 
 fun Route.healthCheck() = location<HealthCheck> {
