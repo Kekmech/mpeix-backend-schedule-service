@@ -6,13 +6,13 @@ import java.time.LocalTime
 
 data class Schedule(
     @Deprecated("Used only name and id since version 1.4.0", replaceWith = ReplaceWith("name"))
-    val groupNumber: String?,
+    val groupNumber: String? = null,
     @Deprecated("Used only name and id since version 1.4.0", replaceWith = ReplaceWith("id"))
-    val groupId: String?,
+    val groupId: String? = null,
 
-    val name: String?,
-    val id: String?,
-    val type: ScheduleType,
+    val name: String? = null,
+    val id: String? = null,
+    val type: ScheduleType? = null,
     val weeks: List<Week> = emptyList()
 ) : Serializable
 

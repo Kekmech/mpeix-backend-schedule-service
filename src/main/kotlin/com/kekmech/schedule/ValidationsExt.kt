@@ -13,5 +13,7 @@ fun String?.checkIsValidPersonName(): String {
     if (!this.matches("([а-яА-Я]+\\s?){1,3}".toRegex())) throw ValidationException("Invalid person name")
     return this
         .split("\\s+".toRegex())
-        .joinToString(separator = " ") { it.toLowerCase().capitalize() }
+        .joinToString(separator = " ") { it
+            .toLowerCase()
+            .capitalize() }
 }

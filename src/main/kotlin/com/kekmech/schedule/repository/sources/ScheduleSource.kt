@@ -92,6 +92,7 @@ class ScheduleSource(
 
     private fun Schedule.supportScheduleV0() = copy(
         name = groupNumber,
-        id = groupId
+        id = groupId,
+        type = ScheduleType.GROUP
     )
 }

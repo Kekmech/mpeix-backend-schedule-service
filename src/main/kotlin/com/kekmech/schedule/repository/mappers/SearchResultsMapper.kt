@@ -9,10 +9,13 @@ object SearchResultsMapper {
     fun map(mpeiSearchResults: MpeiSearchResponse): List<SearchResult> = mpeiSearchResults
         .map {
             SearchResult(
-                name = it.label,
+                name = it.label.clear(),
                 description = it.description,
                 id = it.id,
                 type = SearchResultType.valueOf(it.type.toUpperCase())
             )
         }
+
+    private fun String.clear() = this
+        .replace("\\s{2,}".toRegex(), " ")
 }
