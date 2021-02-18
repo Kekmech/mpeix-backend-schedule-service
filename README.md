@@ -1,5 +1,7 @@
 # MpeiX Schedule microservice
 
+MpeiX Android client is [here](https://github.com/tonykolomeytsev/mpeiapp).
+
 ## Development Setup
 
 Setup development environment from [common](https://github.com/Kekmech/mpeix-backend-common) repository
