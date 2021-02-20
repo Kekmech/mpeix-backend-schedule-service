@@ -2,7 +2,6 @@ package com.kekmech.schedule.repository.sources
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.kekmech.schedule.ExternalException
 import com.kekmech.schedule.ValidationException
 import com.kekmech.schedule.dto.MpeiSearchResponse
 import com.kekmech.schedule.repository.DataSource
@@ -29,7 +28,15 @@ class IdSource(
                 parameter("term", name)
                 parameter("type", type)
             }
-            .firstOrNull() ?: throw ValidationException("Can't find $type with name $name")
+            .firstOrNull()
+            ?.takeIf { isEqualsFuzzy(it.label, name) }
+            ?: throw ValidationException("Can't find $type with name $name")
         firstSearchResult.id
+    }
+
+    private fun isEqualsFuzzy(a: String, b: String): Boolean {
+        val clearedLabelA = a.replace("\\s{2,}".toRegex(), " ")
+        val clearedLabelB = b.replace("\\s{2,}".toRegex(), " ")
+        return clearedLabelA.equals(clearedLabelB, ignoreCase = true)
     }
 }
