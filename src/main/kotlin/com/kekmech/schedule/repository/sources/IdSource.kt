@@ -3,6 +3,7 @@ package com.kekmech.schedule.repository.sources
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.kekmech.schedule.ExternalException
+import com.kekmech.schedule.ValidationException
 import com.kekmech.schedule.dto.MpeiSearchResponse
 import com.kekmech.schedule.repository.DataSource
 import io.ktor.client.*
@@ -28,7 +29,7 @@ class IdSource(
                 parameter("term", name)
                 parameter("type", type)
             }
-            .firstOrNull() ?: throw ExternalException("Can't find $type with name $name")
+            .firstOrNull() ?: throw ValidationException("Can't find $type with name $name")
         firstSearchResult.id
     }
 }
